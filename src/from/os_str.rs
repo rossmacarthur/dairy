@@ -1,4 +1,7 @@
+#![cfg(feature = "std")]
+
 use std::ffi::{OsStr, OsString};
+use std::string::String;
 
 use crate::Cow;
 

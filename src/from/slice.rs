@@ -1,3 +1,5 @@
+use std::vec::Vec;
+
 use crate::Cow;
 
 impl<'a, T: Clone> From<&'a [T]> for Cow<'a, [T]> {

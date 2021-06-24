@@ -1,5 +1,8 @@
+#![cfg(feature = "std")]
+
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
+use std::string::String;
 
 use crate::Cow;
 

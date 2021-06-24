@@ -1,3 +1,5 @@
+use std::string::String;
+
 use crate::Cow;
 
 impl<'a> From<&'a str> for Cow<'a, str> {
