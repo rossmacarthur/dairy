@@ -1,3 +1,5 @@
+mod from;
+
 pub enum Cow<'a, T: ?Sized + 'a>
 where
     T: ToOwned,
