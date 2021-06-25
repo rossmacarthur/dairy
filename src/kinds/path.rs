@@ -12,7 +12,7 @@ use crate::Cow;
 
 impl<'a> From<Cow<'a, Path>> for PathBuf {
     #[inline]
-    fn from(s: Cow<'a, Path>) -> PathBuf {
+    fn from(s: Cow<'a, Path>) -> Self {
         s.into_owned()
     }
 }
@@ -23,21 +23,21 @@ impl<'a> From<Cow<'a, Path>> for PathBuf {
 
 impl<'a> From<&'a Path> for Cow<'a, Path> {
     #[inline]
-    fn from(s: &'a Path) -> Cow<'a, Path> {
+    fn from(s: &'a Path) -> Self {
         Cow::Borrowed(s)
     }
 }
 
 impl<'a> From<PathBuf> for Cow<'a, Path> {
     #[inline]
-    fn from(s: PathBuf) -> Cow<'a, Path> {
+    fn from(s: PathBuf) -> Self {
         Cow::Owned(s)
     }
 }
 
 impl<'a> From<&'a PathBuf> for Cow<'a, Path> {
     #[inline]
-    fn from(p: &'a PathBuf) -> Cow<'a, Path> {
+    fn from(p: &'a PathBuf) -> Self {
         Cow::Borrowed(p.as_path())
     }
 }
@@ -48,21 +48,21 @@ impl<'a> From<&'a PathBuf> for Cow<'a, Path> {
 
 impl<'a> From<&'a OsStr> for Cow<'a, Path> {
     #[inline]
-    fn from(s: &'a OsStr) -> Cow<'a, Path> {
+    fn from(s: &'a OsStr) -> Self {
         Cow::Borrowed(Path::new(s))
     }
 }
 
 impl<'a> From<OsString> for Cow<'a, Path> {
     #[inline]
-    fn from(s: OsString) -> Cow<'a, Path> {
+    fn from(s: OsString) -> Self {
         Cow::Owned(PathBuf::from(s))
     }
 }
 
 impl<'a> From<&'a OsString> for Cow<'a, Path> {
     #[inline]
-    fn from(s: &'a OsString) -> Cow<'a, Path> {
+    fn from(s: &'a OsString) -> Self {
         Cow::Borrowed(Path::new(s.as_os_str()))
     }
 }
@@ -73,21 +73,21 @@ impl<'a> From<&'a OsString> for Cow<'a, Path> {
 
 impl<'a> From<&'a str> for Cow<'a, Path> {
     #[inline]
-    fn from(s: &'a str) -> Cow<'a, Path> {
+    fn from(s: &'a str) -> Self {
         Cow::Borrowed(Path::new(s))
     }
 }
 
 impl<'a> From<String> for Cow<'a, Path> {
     #[inline]
-    fn from(s: String) -> Cow<'a, Path> {
+    fn from(s: String) -> Self {
         Cow::Owned(PathBuf::from(s))
     }
 }
 
 impl<'a> From<&'a String> for Cow<'a, Path> {
     #[inline]
-    fn from(s: &'a String) -> Cow<'a, Path> {
+    fn from(s: &'a String) -> Self {
         Cow::Borrowed(Path::new(s.as_str()))
     }
 }

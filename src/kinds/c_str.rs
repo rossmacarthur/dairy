@@ -10,7 +10,7 @@ use crate::Cow;
 
 impl<'a> From<Cow<'a, CStr>> for CString {
     #[inline]
-    fn from(s: Cow<'a, CStr>) -> CString {
+    fn from(s: Cow<'a, CStr>) -> Self {
         s.into_owned()
     }
 }
@@ -21,21 +21,21 @@ impl<'a> From<Cow<'a, CStr>> for CString {
 
 impl<'a> From<&'a CStr> for Cow<'a, CStr> {
     #[inline]
-    fn from(s: &'a CStr) -> Cow<'a, CStr> {
+    fn from(s: &'a CStr) -> Self {
         Cow::Borrowed(s)
     }
 }
 
 impl<'a> From<CString> for Cow<'a, CStr> {
     #[inline]
-    fn from(s: CString) -> Cow<'a, CStr> {
+    fn from(s: CString) -> Self {
         Cow::Owned(s)
     }
 }
 
 impl<'a> From<&'a CString> for Cow<'a, CStr> {
     #[inline]
-    fn from(s: &'a CString) -> Cow<'a, CStr> {
+    fn from(s: &'a CString) -> Self {
         Cow::Borrowed(s.as_c_str())
     }
 }
