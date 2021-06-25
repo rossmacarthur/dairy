@@ -27,33 +27,35 @@ use Cow::*;
 /// non-mutating methods directly on the data it encloses. If mutation
 /// is desired, `to_mut` will obtain a mutable reference to an owned
 /// value, cloning if necessary.
-pub enum Cow<'a, B: ?Sized + 'a>
+pub enum Cow<'a, T>
 where
-    B: ToOwned,
+    T: ?Sized + ToOwned,
 {
     /// Borrowed data.
-    Borrowed(&'a B),
+    Borrowed(&'a T),
 
     /// Owned data.
-    Owned(<B as ToOwned>::Owned),
+    Owned(T::Owned),
 }
 
-impl<'a, B: ?Sized> Borrow<B> for Cow<'a, B>
+impl<'a, T> Borrow<T> for Cow<'a, T>
 where
-    B: ToOwned,
-    <B as ToOwned>::Owned: 'a,
+    T: ?Sized + ToOwned,
 {
-    fn borrow(&self) -> &B {
+    fn borrow(&self) -> &T {
         &**self
     }
 }
 
-impl<B: ?Sized + ToOwned> Clone for Cow<'_, B> {
+impl<T> Clone for Cow<'_, T>
+where
+    T: ?Sized + ToOwned,
+{
     fn clone(&self) -> Self {
         match *self {
             Borrowed(b) => Borrowed(b),
             Owned(ref o) => {
-                let b: &B = o.borrow();
+                let b: &T = o.borrow();
                 Owned(b.to_owned())
             }
         }
@@ -67,14 +69,14 @@ impl<B: ?Sized + ToOwned> Clone for Cow<'_, B> {
     }
 }
 
-impl<B: ?Sized> Cow<'_, B>
+impl<T> Cow<'_, T>
 where
-    B: ToOwned,
+    T: ?Sized + ToOwned,
 {
     /// Acquires a mutable reference to the owned form of the data.
     ///
     /// Clones the data if it is not already owned.
-    pub fn to_mut(&mut self) -> &mut <B as ToOwned>::Owned {
+    pub fn to_mut(&mut self) -> &mut T::Owned {
         match *self {
             Borrowed(borrowed) => {
                 *self = Owned(borrowed.to_owned());
@@ -90,7 +92,7 @@ where
     /// Extracts the owned data.
     ///
     /// Clones the data if it is not already owned.
-    pub fn into_owned(self) -> <B as ToOwned>::Owned {
+    pub fn into_owned(self) -> T::Owned {
         match self {
             Borrowed(borrowed) => borrowed.to_owned(),
             Owned(owned) => owned,
@@ -98,10 +100,13 @@ where
     }
 }
 
-impl<B: ?Sized + ToOwned> Deref for Cow<'_, B> {
-    type Target = B;
+impl<T> Deref for Cow<'_, T>
+where
+    T: ?Sized + ToOwned,
+{
+    type Target = T;
 
-    fn deref(&self) -> &B {
+    fn deref(&self) -> &T {
         match *self {
             Borrowed(borrowed) => borrowed,
             Owned(ref owned) => owned.borrow(),
@@ -109,11 +114,11 @@ impl<B: ?Sized + ToOwned> Deref for Cow<'_, B> {
     }
 }
 
-impl<B: ?Sized> Eq for Cow<'_, B> where B: Eq + ToOwned {}
+impl<T> Eq for Cow<'_, T> where T: ?Sized + ToOwned + Eq {}
 
-impl<B: ?Sized> Ord for Cow<'_, B>
+impl<T> Ord for Cow<'_, T>
 where
-    B: Ord + ToOwned,
+    T: ?Sized + ToOwned + Ord,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
@@ -121,31 +126,31 @@ where
     }
 }
 
-impl<'a, 'b, B: ?Sized, C: ?Sized> PartialEq<Cow<'b, C>> for Cow<'a, B>
+impl<'a, 'b, T, U> PartialEq<Cow<'b, U>> for Cow<'a, T>
 where
-    B: PartialEq<C> + ToOwned,
-    C: ToOwned,
+    T: ?Sized + ToOwned + PartialEq<U>,
+    U: ?Sized + ToOwned,
 {
     #[inline]
-    fn eq(&self, other: &Cow<'b, C>) -> bool {
+    fn eq(&self, other: &Cow<'b, U>) -> bool {
         PartialEq::eq(&**self, &**other)
     }
 }
 
-impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
+impl<'a, T> PartialOrd for Cow<'a, T>
 where
-    B: PartialOrd + ToOwned,
+    T: ?Sized + ToOwned + PartialOrd,
 {
     #[inline]
-    fn partial_cmp(&self, other: &Cow<'a, B>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Cow<'a, T>) -> Option<Ordering> {
         PartialOrd::partial_cmp(&**self, &**other)
     }
 }
 
-impl<B: ?Sized> fmt::Debug for Cow<'_, B>
+impl<T> fmt::Debug for Cow<'_, T>
 where
-    B: fmt::Debug + ToOwned,
-    B::Owned: fmt::Debug,
+    T: ?Sized + ToOwned + fmt::Debug,
+    T::Owned: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -155,10 +160,10 @@ where
     }
 }
 
-impl<B: ?Sized> fmt::Display for Cow<'_, B>
+impl<T> fmt::Display for Cow<'_, T>
 where
-    B: fmt::Display + ToOwned,
-    B::Owned: fmt::Display,
+    T: ?Sized + ToOwned + fmt::Display,
+    T::Owned: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -168,19 +173,19 @@ where
     }
 }
 
-impl<B: ?Sized> Default for Cow<'_, B>
+impl<T> Default for Cow<'_, T>
 where
-    B: ToOwned,
-    B::Owned: Default,
+    T: ?Sized + ToOwned + Default,
+    T::Owned: Default,
 {
     fn default() -> Self {
-        Owned(<B as ToOwned>::Owned::default())
+        Owned(T::Owned::default())
     }
 }
 
-impl<B: ?Sized> Hash for Cow<'_, B>
+impl<T> Hash for Cow<'_, T>
 where
-    B: Hash + ToOwned,
+    T: ?Sized + ToOwned + Hash,
 {
     #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -188,8 +193,11 @@ where
     }
 }
 
-impl<B: ?Sized + ToOwned> AsRef<B> for Cow<'_, B> {
-    fn as_ref(&self) -> &B {
+impl<T> AsRef<T> for Cow<'_, T>
+where
+    T: ?Sized + ToOwned,
+{
+    fn as_ref(&self) -> &T {
         self
     }
 }
