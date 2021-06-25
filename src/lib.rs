@@ -5,7 +5,7 @@ extern crate alloc as std;
 #[cfg(feature = "std")]
 extern crate std;
 
-mod from;
+mod kinds;
 mod serde;
 
 use std::borrow::{Borrow, ToOwned};
@@ -13,8 +13,6 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
-use std::ops::{Add, AddAssign};
-use std::string::String;
 
 use Cow::*;
 
@@ -175,7 +173,6 @@ where
     B: ToOwned,
     B::Owned: Default,
 {
-    /// Creates an owned Cow<'a, B> with the default value for the contained owned value.
     fn default() -> Self {
         Owned(<B as ToOwned>::Owned::default())
     }
@@ -191,58 +188,8 @@ where
     }
 }
 
-impl<T: ?Sized + ToOwned> AsRef<T> for Cow<'_, T> {
-    fn as_ref(&self) -> &T {
+impl<B: ?Sized + ToOwned> AsRef<B> for Cow<'_, B> {
+    fn as_ref(&self) -> &B {
         self
-    }
-}
-
-impl<'a> Add<&'a str> for Cow<'a, str> {
-    type Output = Cow<'a, str>;
-
-    #[inline]
-    fn add(mut self, rhs: &'a str) -> Self::Output {
-        self += rhs;
-        self
-    }
-}
-
-impl<'a> Add<Cow<'a, str>> for Cow<'a, str> {
-    type Output = Cow<'a, str>;
-
-    #[inline]
-    fn add(mut self, rhs: Cow<'a, str>) -> Self::Output {
-        self += rhs;
-        self
-    }
-}
-
-impl<'a> AddAssign<&'a str> for Cow<'a, str> {
-    fn add_assign(&mut self, rhs: &'a str) {
-        if self.is_empty() {
-            *self = Cow::Borrowed(rhs)
-        } else if !rhs.is_empty() {
-            if let Cow::Borrowed(lhs) = *self {
-                let mut s = String::with_capacity(lhs.len() + rhs.len());
-                s.push_str(lhs);
-                *self = Cow::Owned(s);
-            }
-            self.to_mut().push_str(rhs);
-        }
-    }
-}
-
-impl<'a> AddAssign<Cow<'a, str>> for Cow<'a, str> {
-    fn add_assign(&mut self, rhs: Cow<'a, str>) {
-        if self.is_empty() {
-            *self = rhs
-        } else if !rhs.is_empty() {
-            if let Cow::Borrowed(lhs) = *self {
-                let mut s = String::with_capacity(lhs.len() + rhs.len());
-                s.push_str(lhs);
-                *self = Cow::Owned(s);
-            }
-            self.to_mut().push_str(&rhs);
-        }
     }
 }
