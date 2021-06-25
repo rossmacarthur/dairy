@@ -19,6 +19,16 @@ impl<'a> From<Cow<'a, Path>> for PathBuf {
     }
 }
 
+impl<'a> From<Cow<'a, Path>> for Box<Path> {
+    #[inline]
+    fn from(s: Cow<'a, Path>) -> Self {
+        match s {
+            Cow::Borrowed(b) => Box::from(b),
+            Cow::Owned(o) => Box::from(o),
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From self
 ////////////////////////////////////////////////////////////////////////////////

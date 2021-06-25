@@ -16,6 +16,16 @@ impl<'a> From<Cow<'a, str>> for String {
     }
 }
 
+impl<'a> From<Cow<'a, str>> for Box<str> {
+    #[inline]
+    fn from(s: Cow<'a, str>) -> Self {
+        match s {
+            Cow::Borrowed(b) => Box::from(b),
+            Cow::Owned(o) => Box::from(o),
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From self
 ////////////////////////////////////////////////////////////////////////////////

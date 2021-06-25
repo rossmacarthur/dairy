@@ -15,6 +15,16 @@ impl<'a, T: Clone> From<Cow<'a, [T]>> for Vec<T> {
     }
 }
 
+impl<'a, T: Copy> From<Cow<'a, [T]>> for Box<[T]> {
+    #[inline]
+    fn from(s: Cow<'a, [T]>) -> Self {
+        match s {
+            Cow::Borrowed(b) => Box::from(b),
+            Cow::Owned(o) => Box::from(o),
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From self
 ////////////////////////////////////////////////////////////////////////////////
