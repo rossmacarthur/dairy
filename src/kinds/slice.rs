@@ -1,5 +1,5 @@
-use std::iter::FromIterator;
-use std::vec::Vec;
+use alloc::vec::Vec;
+use core::iter::FromIterator;
 
 use crate::Cow;
 

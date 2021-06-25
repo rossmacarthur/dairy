@@ -1,18 +1,19 @@
 #![no_std]
 
-#[cfg(not(feature = "std"))]
-extern crate alloc as std;
+extern crate alloc;
+
 #[cfg(feature = "std")]
 extern crate std;
 
 mod kinds;
 mod serde;
 
-use std::borrow::{Borrow, ToOwned};
-use std::cmp::Ordering;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
+use alloc::borrow::ToOwned;
+use core::borrow::Borrow;
+use core::cmp::Ordering;
+use core::fmt;
+use core::hash::{Hash, Hasher};
+use core::ops::Deref;
 
 use Cow::*;
 

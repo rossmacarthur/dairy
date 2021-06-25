@@ -1,6 +1,6 @@
 #![cfg(feature = "serde")]
 
-use std::borrow::ToOwned;
+use alloc::borrow::ToOwned;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 

@@ -1,6 +1,6 @@
-use std::iter::FromIterator;
-use std::ops::{Add, AddAssign};
-use std::string::String;
+use alloc::string::String;
+use core::iter::FromIterator;
+use core::ops::{Add, AddAssign};
 
 use crate::Cow;
 
