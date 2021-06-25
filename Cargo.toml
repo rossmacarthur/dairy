@@ -5,6 +5,9 @@ authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 
+[dependencies]
+serde = { version = "1.0", default-features = false, optional = true }
+
 [features]
 default = ["std"]
 std = []

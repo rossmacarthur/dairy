@@ -6,6 +6,7 @@ extern crate alloc as std;
 extern crate std;
 
 mod from;
+mod serde;
 
 use std::borrow::{Borrow, ToOwned};
 use std::cmp::Ordering;
