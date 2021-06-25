@@ -1,3 +1,4 @@
+use alloc::boxed::Box;
 use alloc::string::String;
 use core::iter::FromIterator;
 use core::ops::{Add, AddAssign};
@@ -18,6 +19,13 @@ impl<'a> From<Cow<'a, str>> for String {
 ////////////////////////////////////////////////////////////////////////////////
 // From self
 ////////////////////////////////////////////////////////////////////////////////
+
+impl<'a> From<char> for Cow<'a, str> {
+    #[inline]
+    fn from(c: char) -> Self {
+        Cow::Owned(String::from(c))
+    }
+}
 
 impl<'a> From<&'a str> for Cow<'a, str> {
     #[inline]
@@ -40,6 +48,13 @@ impl<'a> From<&'a String> for Cow<'a, str> {
     }
 }
 
+impl<'a> From<Box<str>> for Cow<'a, str> {
+    #[inline]
+    fn from(s: Box<str>) -> Self {
+        Cow::Owned(s.into_string())
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From iterator
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,19 +62,38 @@ impl<'a> From<&'a String> for Cow<'a, str> {
 impl<'a> FromIterator<char> for Cow<'a, str> {
     #[inline]
     fn from_iter<I: IntoIterator<Item = char>>(it: I) -> Self {
-        Cow::Owned(FromIterator::from_iter(it))
+        Cow::Owned(String::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<&'a char> for Cow<'a, str> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = &'a char>>(it: I) -> Self {
+        Cow::Owned(String::from_iter(it))
     }
 }
 
 impl<'a, 'b> FromIterator<&'b str> for Cow<'a, str> {
     fn from_iter<I: IntoIterator<Item = &'b str>>(it: I) -> Self {
-        Cow::Owned(FromIterator::from_iter(it))
+        Cow::Owned(String::from_iter(it))
     }
 }
 
 impl<'a> FromIterator<String> for Cow<'a, str> {
     fn from_iter<I: IntoIterator<Item = String>>(it: I) -> Self {
-        Cow::Owned(FromIterator::from_iter(it))
+        Cow::Owned(String::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<Box<str>> for Cow<'a, str> {
+    fn from_iter<I: IntoIterator<Item = Box<str>>>(it: I) -> Self {
+        Cow::Owned(String::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<Cow<'a, str>> for Cow<'a, str> {
+    fn from_iter<I: IntoIterator<Item = Cow<'a, str>>>(it: I) -> Self {
+        Cow::Owned(String::from_iter(it.into_iter().map(Cow::into_owned)))
     }
 }
 

@@ -1,6 +1,9 @@
 #![cfg(feature = "std")]
 
+use std::boxed::Box;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
+use std::path::{Path, PathBuf};
 use std::string::String;
 
 use crate::Cow;
@@ -41,6 +44,13 @@ impl<'a> From<&'a OsString> for Cow<'a, OsStr> {
     }
 }
 
+impl<'a> From<Box<OsStr>> for Cow<'a, OsStr> {
+    #[inline]
+    fn from(s: Box<OsStr>) -> Self {
+        Cow::Owned(s.into_os_string())
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // From str
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,5 +73,55 @@ impl<'a> From<&'a String> for Cow<'a, OsStr> {
     #[inline]
     fn from(s: &'a String) -> Self {
         Cow::Borrowed(OsStr::new(s.as_str()))
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// From Path
+////////////////////////////////////////////////////////////////////////////////
+
+impl<'a> From<&'a Path> for Cow<'a, OsStr> {
+    #[inline]
+    fn from(s: &'a Path) -> Self {
+        Cow::Borrowed(s.as_os_str())
+    }
+}
+
+impl<'a> From<PathBuf> for Cow<'a, OsStr> {
+    #[inline]
+    fn from(s: PathBuf) -> Self {
+        Cow::Owned(OsString::from(s))
+    }
+}
+
+impl<'a> From<&'a PathBuf> for Cow<'a, OsStr> {
+    #[inline]
+    fn from(p: &'a PathBuf) -> Self {
+        Cow::Borrowed(p.as_os_str())
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// From iterator
+////////////////////////////////////////////////////////////////////////////////
+
+impl<'a> FromIterator<&'a OsStr> for Cow<'a, OsStr> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = &'a OsStr>>(it: I) -> Self {
+        Cow::Owned(OsString::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<OsString> for Cow<'a, OsStr> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = OsString>>(it: I) -> Self {
+        Cow::Owned(OsString::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<Cow<'a, OsStr>> for Cow<'a, OsStr> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = Cow<'a, OsStr>>>(it: I) -> Self {
+        Cow::Owned(OsString::from_iter(it.into_iter().map(Cow::into_owned)))
     }
 }

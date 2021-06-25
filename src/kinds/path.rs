@@ -1,6 +1,8 @@
 #![cfg(feature = "std")]
 
+use std::boxed::Box;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 use std::string::String;
 
@@ -39,6 +41,13 @@ impl<'a> From<&'a PathBuf> for Cow<'a, Path> {
     #[inline]
     fn from(p: &'a PathBuf) -> Self {
         Cow::Borrowed(p.as_path())
+    }
+}
+
+impl<'a> From<Box<Path>> for Cow<'a, Path> {
+    #[inline]
+    fn from(s: Box<Path>) -> Self {
+        Cow::Owned(s.into_path_buf())
     }
 }
 
@@ -89,5 +98,30 @@ impl<'a> From<&'a String> for Cow<'a, Path> {
     #[inline]
     fn from(s: &'a String) -> Self {
         Cow::Borrowed(Path::new(s.as_str()))
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// From iterator
+////////////////////////////////////////////////////////////////////////////////
+
+impl<'a> FromIterator<&'a Path> for Cow<'a, Path> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = &'a Path>>(it: I) -> Self {
+        Cow::Owned(PathBuf::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<PathBuf> for Cow<'a, Path> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = PathBuf>>(it: I) -> Self {
+        Cow::Owned(PathBuf::from_iter(it))
+    }
+}
+
+impl<'a> FromIterator<Cow<'a, Path>> for Cow<'a, Path> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = Cow<'a, Path>>>(it: I) -> Self {
+        Cow::Owned(PathBuf::from_iter(it))
     }
 }
