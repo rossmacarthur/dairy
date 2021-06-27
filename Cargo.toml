@@ -1,6 +1,6 @@
 [package]
 name = "dairy"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Ross MacArthur <ross@macarthur.io>"]
 edition = "2018"
 description = "A more compact, user friendly implementation of `Cow`."
