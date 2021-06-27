@@ -1,14 +1,12 @@
 #![cfg(feature = "serde")]
 
-use alloc::borrow::ToOwned;
-
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::Cow;
+use crate::{Convert, Cow};
 
 impl<'de, 'a, T: ?Sized> Deserialize<'de> for Cow<'a, T>
 where
-    T: ToOwned,
+    T: Convert,
     T::Owned: Deserialize<'de>,
 {
     #[inline]
@@ -16,13 +14,13 @@ where
     where
         D: Deserializer<'de>,
     {
-        T::Owned::deserialize(deserializer).map(Cow::Owned)
+        T::Owned::deserialize(deserializer).map(Cow::owned)
     }
 }
 
 impl<'a, T: ?Sized> Serialize for Cow<'a, T>
 where
-    T: Serialize + ToOwned,
+    T: Serialize + Convert,
 {
     #[inline]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
