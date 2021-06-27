@@ -1,3 +1,27 @@
+//! A more compact, user friendly implementation of `Cow`.
+//!
+//! - Optimized for use on 64-bit Unix systems (behind `unix` feature).
+//! - Much better support for `Cow<Path>` and `Cow<OsStr>`.
+//!
+//! ```
+//! use std::path::Path;
+//! use dairy::Cow;
+//!
+//! let name: Cow<str> = "Hello World!".into();
+//! let path: Cow<Path> = "./path/to/file.txt".into();
+//! ```
+//!
+//! ### Caveats
+//!
+//! - Only `str`, `OsStr`, `CStr` and `Path` types are supported.
+//! - `OsStr`, `CStr` and `Path` are only supported on Unix.
+//! - On 32-bit operating systems the maximum length of types is (2¹⁶ - 1).
+//!
+//! ## Acknowledgements
+//!
+//! Some implementation details taken from the excellent
+//! [beef](https://github.com/maciejhirsz/beef) crate.
+
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
 
@@ -52,6 +76,7 @@ impl<'a, T> Cow<'a, T>
 where
     T: ?Sized + Convert,
 {
+    /// Construct from borrowed data.
     #[inline]
     pub fn borrowed(b: &'a T) -> Self {
         let (ptr, extra) = T::unmake_borrowed(b);
@@ -62,6 +87,7 @@ where
         }
     }
 
+    /// Construct from owned data.
     #[inline]
     pub fn owned(o: T::Owned) -> Self {
         let (ptr, extra) = T::unmake_owned(o);
@@ -78,11 +104,13 @@ where
         unsafe { &*T::make_ptr(self.ptr, self.extra) }
     }
 
+    /// Returns true if the data is borrowed.
     #[inline]
     pub fn is_borrowed(&self) -> bool {
         !self.extra.is_owned()
     }
 
+    /// Returns true if the data is owned.
     #[inline]
     pub fn is_owned(&self) -> bool {
         self.extra.is_owned()
