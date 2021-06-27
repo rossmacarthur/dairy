@@ -5,7 +5,7 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
-mod kinds;
+mod from;
 mod serde;
 
 use alloc::borrow::ToOwned;
@@ -176,7 +176,7 @@ where
 
 impl<T> Default for Cow<'_, T>
 where
-    T: ?Sized + ToOwned + Default,
+    T: ?Sized + ToOwned,
     T::Owned: Default,
 {
     fn default() -> Self {
