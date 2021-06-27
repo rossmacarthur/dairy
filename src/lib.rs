@@ -38,7 +38,7 @@ use core::borrow::Borrow;
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
-use core::marker::PhantomData;
+use core::marker::{PhantomData, Unpin};
 use core::mem::ManuallyDrop;
 use core::ops::Deref;
 use core::ptr::NonNull;
@@ -269,4 +269,25 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) {
         Hash::hash(&**self, state)
     }
+}
+
+unsafe impl<T> Send for Cow<'_, T>
+where
+    T: ?Sized + Convert + Sync,
+    T::Owned: Send,
+{
+}
+
+unsafe impl<T> Sync for Cow<'_, T>
+where
+    T: ?Sized + Convert + Sync,
+    T::Owned: Sync,
+{
+}
+
+impl<T> Unpin for Cow<'_, T>
+where
+    T: ?Sized + Convert,
+    T::Owned: Unpin,
+{
 }
