@@ -1,5 +1,5 @@
 use std::borrow::Borrow;
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::path::Path;
 
 use dairy::Cow;
@@ -112,13 +112,31 @@ fn cow_str_owned_as_ref() {
 
 #[test]
 fn cow_str_basic_from() {
-    String::from(Cow::<str>::borrowed("Hello World"));
-    String::from(Cow::<str>::owned(String::from("Hello World")));
-    Box::<str>::from(Cow::<str>::borrowed("Hello World"));
-    Box::<str>::from(Cow::<str>::owned(String::from("Hello World")));
+    String::from(Cow::<str>::borrowed("Hello World!"));
+    String::from(Cow::<str>::owned(String::from("Hello World!")));
+    Box::<str>::from(Cow::<str>::borrowed("Hello World!"));
+    Box::<str>::from(Cow::<str>::owned(String::from("Hello World!")));
     Cow::<str>::from('H');
     Cow::<str>::from("Hello World!");
     Cow::<str>::from(String::from("Hello World!"));
     Cow::<str>::from(&String::from("Hello World!"));
     Cow::<str>::from(String::from("Hello World!").into_boxed_str());
+}
+
+#[test]
+fn cow_str_borrowed_partial_eq() {
+    let c: Cow<str> = Cow::borrowed("Hello World!");
+
+    assert_eq!(c, Cow::<str>::from("Hello World!"));
+    assert_eq!(c, Cow::<OsStr>::from("Hello World!"));
+
+    assert_eq!(c, *"Hello World!");
+    assert_eq!(c, "Hello World!");
+    assert_eq!(c, String::from("Hello World!"));
+    assert_eq!(c, &String::from("Hello World!"));
+
+    assert_eq!(c, *OsStr::new("Hello World!"));
+    assert_eq!(c, OsStr::new("Hello World!"));
+    assert_eq!(c, OsString::from("Hello World!"));
+    assert_eq!(c, &OsString::from("Hello World!"));
 }

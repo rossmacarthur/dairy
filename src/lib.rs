@@ -31,12 +31,12 @@ extern crate alloc;
 extern crate std;
 
 mod as_ref;
+mod cmp;
 mod convert;
 mod from;
 mod serde;
 
 use core::borrow::Borrow;
-use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::{PhantomData, Unpin};
@@ -183,39 +183,6 @@ where
         } else {
             Self { ..*self }
         }
-    }
-}
-
-impl<T> Eq for Cow<'_, T> where T: ?Sized + Convert + Eq {}
-
-impl<T> Ord for Cow<'_, T>
-where
-    T: ?Sized + Convert + Ord,
-{
-    #[inline]
-    fn cmp(&self, other: &Self) -> Ordering {
-        Ord::cmp(&**self, &**other)
-    }
-}
-
-impl<'a, 'b, T, U> PartialEq<Cow<'b, U>> for Cow<'a, T>
-where
-    T: ?Sized + Convert + PartialEq<U>,
-    U: ?Sized + Convert,
-{
-    #[inline]
-    fn eq(&self, other: &Cow<'b, U>) -> bool {
-        PartialEq::eq(&**self, &**other)
-    }
-}
-
-impl<'a, T> PartialOrd for Cow<'a, T>
-where
-    T: ?Sized + Convert + PartialOrd,
-{
-    #[inline]
-    fn partial_cmp(&self, other: &Cow<'a, T>) -> Option<Ordering> {
-        PartialOrd::partial_cmp(&**self, &**other)
     }
 }
 
