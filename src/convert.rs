@@ -7,10 +7,14 @@ use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
 
+#[cfg(feature = "std")]
+use std::{
+    ffi::{CStr, CString},
+    os::raw::c_char,
+};
 #[cfg(feature = "unix")]
 use std::{
-    ffi::{CStr, CString, OsStr, OsString},
-    os::raw::c_char,
+    ffi::{OsStr, OsString},
     os::unix::ffi::{OsStrExt, OsStringExt},
     path::{Path, PathBuf},
 };
@@ -24,7 +28,7 @@ mod private {
 
     impl<T: Clone> Sealed for [T] {}
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     impl Sealed for std::ffi::CStr {}
 
     #[cfg(feature = "unix")]
@@ -179,7 +183,7 @@ unsafe impl<T: Clone> Convert for [T] {
     }
 }
 
-#[cfg(feature = "unix")]
+#[cfg(feature = "std")]
 unsafe impl Convert for CStr {
     type Ptr = c_char;
     type Extra = bool;

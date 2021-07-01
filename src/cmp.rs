@@ -3,6 +3,9 @@ use core::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use alloc::string::String;
 use alloc::vec::Vec;
 
+#[cfg(feature = "std")]
+use std::ffi::{CStr, CString};
+
 #[cfg(feature = "unix")]
 use std::{
     ffi::{OsStr, OsString},
@@ -89,6 +92,14 @@ impl_basic! {
     ([T], Vec<U>, { T: Clone + PartialEq<U>, U })
 
     ([T], [U; N], { T: Clone + PartialEq<U>, U, const N: usize })
+
+    // Cow<CStr>
+
+    #[cfg(feature = "std")]
+    (CStr, CStr)
+
+    #[cfg(feature = "std")]
+    (CStr, CString)
 
     // Cow<OsStr>
 

@@ -2,9 +2,11 @@ use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
 
+#[cfg(feature = "std")]
+use std::ffi::{CStr, CString};
 #[cfg(feature = "unix")]
 use std::{
-    ffi::{CStr, CString, OsStr, OsString},
+    ffi::{OsStr, OsString},
     path::{Path, PathBuf},
 };
 
@@ -107,7 +109,7 @@ impl_basic! {
 
     (Vec<T>, [T], { T: Clone }, { T: Copy }, as_slice, into_vec),
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (CString, CStr, as_c_str, into_c_string),
 
     #[cfg(feature = "unix")]
