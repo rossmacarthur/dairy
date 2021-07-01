@@ -52,8 +52,31 @@ use core::ptr::NonNull;
 
 use alloc::boxed::Box;
 
+#[cfg(feature = "std")]
+use std::ffi::CStr;
+#[cfg(feature = "unix")]
+use std::{ffi::OsStr, path::Path};
+
 pub use crate::convert::Convert;
 use crate::convert::IsOwned;
+
+/// Convenient type alias for a clone-on-write [`str`].
+pub type String<'a> = Cow<'a, str>;
+
+/// Convenient type alias for a clone-on-write [`[T]`][slice].
+pub type Vec<'a, T> = Cow<'a, [T]>;
+
+/// Convenient type alias for a clone-on-write [`CStr`].
+#[cfg(feature = "std")]
+pub type CString<'a> = Cow<'a, CStr>;
+
+/// Convenient type alias for a clone-on-write [`OsStr`].
+#[cfg(feature = "unix")]
+pub type OsString<'a> = Cow<'a, OsStr>;
+
+/// Convenient type alias for a clone-on-write [`Path`].
+#[cfg(feature = "unix")]
+pub type PathBuf<'a> = Cow<'a, Path>;
 
 /// A clone-on-write smart pointer.
 ///
