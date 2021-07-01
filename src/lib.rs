@@ -30,6 +30,7 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+mod as_ref;
 mod convert;
 mod from;
 mod serde;
@@ -167,16 +168,6 @@ where
 {
     #[inline]
     fn borrow(&self) -> &T {
-        self.make_borrowed()
-    }
-}
-
-impl<T> AsRef<T> for Cow<'_, T>
-where
-    T: ?Sized + Convert,
-{
-    #[inline]
-    fn as_ref(&self) -> &T {
         self.make_borrowed()
     }
 }

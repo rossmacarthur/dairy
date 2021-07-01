@@ -13,6 +13,10 @@ categories = ["memory-management"]
 [dependencies]
 serde = { version = "1.0", default-features = false, optional = true }
 
+[dev-dependencies]
+# HACK: enable the `unix` feature for tests
+_self = { package = "dairy", path = ".", features = ["unix"] }
+
 [features]
 default = ["std"]
 std = []
