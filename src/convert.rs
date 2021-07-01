@@ -84,10 +84,10 @@ pub trait IsOwned {
 
 /// Convert a [`ToOwned`] type to and from parts.
 pub unsafe trait Convert: ToOwned + private::Sealed {
-    /// The pointer type that will be used in the `Cow`.
+    /// The pointer type that will be used in [`Cow`][crate::Cow].
     type Ptr;
 
-    /// Any extra data that is required to reconstruct and owned or borrowed
+    /// Any extra data that is required to reconstruct an owned or borrowed
     /// variant of this type. For example: length and capacity.
     type Extra: IsOwned + Copy;
 
@@ -103,7 +103,7 @@ pub unsafe trait Convert: ToOwned + private::Sealed {
     /// Returns an owned version of self constructed from parts.
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned;
 
-    /// Convert [`ToOwned::Owned`] into a [`Box<Self>`].
+    /// Converts the owned version of self into boxed data.
     fn to_boxed(o: Self::Owned) -> Box<Self>;
 }
 

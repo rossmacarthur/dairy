@@ -1,7 +1,6 @@
 //! A more compact, user friendly clone-on-write smart pointer.
 //!
 //! ```
-//! use std::path::Path;
 //! use dairy::Cow;
 //!
 //! let borrowed: Cow<str> = Cow::borrowed("Hello World!");
@@ -10,23 +9,18 @@
 //!
 //! [`dairy::Cow`][Cow] is an improved version of the standard library
 //! [`std::borrow::Cow`]. It is just 2 words wide, storing the length, capacity,
-//! and the ownership tag all in one word.
-//!
-//! [`dairy::Cow`][Cow] has many more [`From`] and [`PartialEq`] implementations.
-//! Most notably for `Cow<Path>` making `Into<Cow<Path>>` just as nice to use as
-//! `Cow<str>`.
+//! and the ownership tag all in one word. [`dairy::Cow`][Cow] is able to
+//! provide many more [`From`] implementations; some which are not possible for
+//! the standard library to provide due to the `alloc`, `std` split. Most
+//! notably `Cow<Path>` has the useful [`From<&str>`] implementation.
 //!
 //! Unfortunately these benefits come with some caveats:
 //!
-//! - Only `str`, `[T]`, `OsStr`, `CStr` and `Path` types are supported.
-//! - Additionally, `OsStr` and `Path` are only supported on Unix.
-//! - On 32-bit operating systems the maximum length is `u16::MAX` which is
-//!   not sufficient for all use cases.
-//!
-//! ## Acknowledgements
-//!
-//! Some implementation details taken from the excellent
-//! [beef](https://github.com/maciejhirsz/beef) crate.
+//! - Only [`str`], [`[T]`][slice], [`CStr`], [`OsStr`], and [`Path`] types are
+//!   supported. And [`OsStr`] and [`Path`] are only supported on Unix (`unix`
+//!   feature).
+//! - On 32-bit operating systems the maximum length is [`u16::MAX`] which might
+//!   not be sufficient for all use cases.
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
@@ -84,9 +78,9 @@ pub type PathBuf<'a> = Cow<'a, Path>;
 /// can enclose and provide immutable access to borrowed data, and clone the
 /// data lazily when mutation or ownership is required.
 ///
-/// `Cow` implements `Deref`, which means that you can call non-mutating methods
-/// directly on the data it encloses. If mutation is desired, `to_mut` will
-/// obtain a mutable reference to an owned value, cloning if necessary.
+/// `Cow` implements [`Deref`], which means that you can call non-mutating
+/// methods directly on the data it encloses. If mutation is desired, `to_mut`
+/// will obtain a mutable reference to an owned value, cloning if necessary.
 pub struct Cow<'a, T>
 where
     T: ?Sized + Convert,
@@ -94,7 +88,7 @@ where
     /// Pointer to the data.
     ptr: NonNull<T::Ptr>,
 
-    /// Any extra data that is required to reconstruct and owned or borrowed
+    /// Any extra data that is required to reconstruct an owned or borrowed
     /// variant of this type. For example: length and capacity.
     extra: T::Extra,
 
@@ -146,7 +140,7 @@ where
         self.extra.is_owned()
     }
 
-    /// Converts this `Cow<T>` into owned data.
+    /// Converts into owned data.
     ///
     /// Clones the data if it is not already owned.
     pub fn into_owned(self) -> T::Owned {
@@ -158,7 +152,7 @@ where
         }
     }
 
-    /// Converts this `Cow<T>` into a [`Box<T>`].
+    /// Converts into boxed data.
     ///
     /// Clones the data if it is not already owned.
     #[inline]

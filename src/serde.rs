@@ -4,9 +4,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::{Convert, Cow};
 
-impl<'de, 'a, T: ?Sized> Deserialize<'de> for Cow<'a, T>
+impl<'de, 'a, T> Deserialize<'de> for Cow<'a, T>
 where
-    T: Convert,
+    T: ?Sized + Convert,
     T::Owned: Deserialize<'de>,
 {
     #[inline]
@@ -18,9 +18,9 @@ where
     }
 }
 
-impl<'a, T: ?Sized> Serialize for Cow<'a, T>
+impl<'a, T> Serialize for Cow<'a, T>
 where
-    T: Serialize + Convert,
+    T: ?Sized + Convert + Serialize,
 {
     #[inline]
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
