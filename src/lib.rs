@@ -79,8 +79,7 @@ pub type PathBuf<'a> = Cow<'a, Path>;
 /// data lazily when mutation or ownership is required.
 ///
 /// `Cow` implements [`Deref`], which means that you can call non-mutating
-/// methods directly on the data it encloses. If mutation is desired, `to_mut`
-/// will obtain a mutable reference to an owned value, cloning if necessary.
+/// methods directly on the data it encloses.
 pub struct Cow<'a, T>
 where
     T: ?Sized + Convert,
@@ -156,7 +155,7 @@ where
     ///
     /// Clones the data if it is not already owned.
     #[inline]
-    fn into_boxed(self) -> Box<T> {
+    pub fn into_boxed(self) -> Box<T> {
         T::to_boxed(self.into_owned())
     }
 }
