@@ -38,6 +38,7 @@ mod private {
     impl Sealed for std::path::Path {}
 }
 
+#[cfg(target_pointer_width = "64")]
 mod extra {
     use super::*;
 
@@ -51,14 +52,12 @@ mod extra {
     impl Extra {
         #[inline]
         pub unsafe fn borrowed<T>(ptr: *const T, len: usize) -> (NonNull<T>, Self) {
-            assert!((len & LOWER) == len, "length out of bounds");
             let ptr = unsafe { NonNull::new_unchecked(ptr as *mut T) };
             (ptr, Extra(len))
         }
 
         #[inline]
         pub unsafe fn owned<T>(ptr: *mut T, len: usize, cap: usize) -> (NonNull<T>, Self) {
-            assert!((len & LOWER) == len, "length out of bounds");
             assert!((cap & LOWER) == cap, "capacity out of bounds");
             let extra = (cap << SHIFT) | len;
             let ptr = unsafe { NonNull::new_unchecked(ptr) };
@@ -73,6 +72,41 @@ mod extra {
         #[inline]
         pub const fn capacity(&self) -> usize {
             (self.0 & UPPER) >> SHIFT
+        }
+    }
+}
+
+#[cfg(not(target_pointer_width = "64"))]
+mod extra {
+    use super::*;
+
+    #[derive(Clone, Copy)]
+    pub struct Extra {
+        len: usize,
+        cap: usize,
+    }
+
+    impl Extra {
+        #[inline]
+        pub unsafe fn borrowed<T>(ptr: *const T, len: usize) -> (NonNull<T>, Self) {
+            let ptr = unsafe { NonNull::new_unchecked(ptr as *mut T) };
+            (ptr, Extra { len, cap: 0 })
+        }
+
+        #[inline]
+        pub unsafe fn owned<T>(ptr: *mut T, len: usize, cap: usize) -> (NonNull<T>, Self) {
+            let ptr = unsafe { NonNull::new_unchecked(ptr) };
+            (ptr, Extra { len, cap })
+        }
+
+        #[inline]
+        pub const fn len(&self) -> usize {
+            self.len
+        }
+
+        #[inline]
+        pub const fn capacity(&self) -> usize {
+            self.cap
         }
     }
 }

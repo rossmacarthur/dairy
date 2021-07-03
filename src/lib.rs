@@ -14,13 +14,11 @@
 //! the standard library to provide due to the `alloc`, `std` split. Most
 //! notably `Cow<Path>` has the useful [`From<&str>`] implementation.
 //!
-//! Unfortunately these benefits come with some caveats:
+//! These benefits come with some caveats:
 //!
 //! - Only [`str`], [`[T]`][slice], [`CStr`], [`OsStr`], and [`Path`] types are
 //!   supported. And [`OsStr`] and [`Path`] are only supported on Unix (`unix`
 //!   feature).
-//! - On 32-bit operating systems the maximum length is [`u16::MAX`] which might
-//!   not be sufficient for all use cases.
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
