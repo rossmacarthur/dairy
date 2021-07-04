@@ -18,24 +18,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::convert::extra::Extra;
-
-mod private {
-    pub trait Sealed {}
-
-    impl Sealed for str {}
-
-    impl<T: Clone> Sealed for [T] {}
-
-    #[cfg(feature = "std")]
-    impl Sealed for std::ffi::CStr {}
-
-    #[cfg(feature = "unix")]
-    impl Sealed for std::ffi::OsStr {}
-
-    #[cfg(feature = "unix")]
-    impl Sealed for std::path::Path {}
-}
+use self::extra::Extra;
+use crate::sealed;
 
 #[cfg(target_pointer_width = "64")]
 mod extra {
@@ -116,7 +100,7 @@ pub trait IsOwned {
 }
 
 /// Convert a [`ToOwned`] type to and from parts.
-pub unsafe trait Convert: ToOwned + private::Sealed {
+pub unsafe trait Convert: ToOwned + sealed::Sealed {
     /// The pointer type that will be used in [`Cow`][crate::Cow].
     type Ptr;
 

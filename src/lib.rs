@@ -32,6 +32,7 @@ mod as_ref;
 mod cmp;
 mod convert;
 mod from;
+mod sealed;
 mod serde;
 mod to_boxed;
 
