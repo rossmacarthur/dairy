@@ -1,15 +1,15 @@
-#[cfg(feature = "unix")]
+#[cfg(feature = "std")]
 use std::{ffi::OsStr, path::Path};
 
-use crate::{Convert, Cow};
+use crate::{Cow, Dairy};
 
-impl<T> AsRef<T> for Cow<'_, T>
+impl<'a, T> AsRef<T> for Cow<'a, T>
 where
-    T: ?Sized + Convert,
+    T: ?Sized + Dairy<'a>,
 {
     #[inline]
     fn as_ref(&self) -> &T {
-        self.make_borrowed()
+        self.make_ref()
     }
 }
 
@@ -23,7 +23,7 @@ macro_rules! impl_basic {
             impl<'a> AsRef<$As> for Cow<'a, $Ty> {
                 #[inline]
                 fn as_ref(&self) -> &$As {
-                    self.make_borrowed().as_ref()
+                    self.make_ref().as_ref()
                 }
             }
         )+
@@ -33,15 +33,15 @@ macro_rules! impl_basic {
 impl_basic! {
     (str as [u8])
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (str as OsStr)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (str as Path)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsStr as Path)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (Path as OsStr)
 }

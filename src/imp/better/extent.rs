@@ -1,3 +1,5 @@
+//! Implements a compact storage for length and capacity.
+
 use core::ptr::NonNull;
 
 #[cfg(not(target_pointer_width = "64"))]

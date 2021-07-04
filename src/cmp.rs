@@ -4,20 +4,17 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
-use std::ffi::{CStr, CString};
-
-#[cfg(feature = "unix")]
 use std::{
-    ffi::{OsStr, OsString},
+    ffi::{CStr, CString, OsStr, OsString},
     path::{Path, PathBuf},
 };
 
-use crate::{Convert, Cow};
+use crate::{Cow, Dairy};
 
 impl<'a, 'b, T, U> PartialEq<Cow<'b, U>> for Cow<'a, T>
 where
-    T: ?Sized + Convert + PartialEq<U>,
-    U: ?Sized + Convert,
+    T: ?Sized + Dairy<'a> + PartialEq<U>,
+    U: ?Sized + Dairy<'b>,
 {
     #[inline]
     fn eq(&self, other: &Cow<'b, U>) -> bool {
@@ -25,11 +22,11 @@ where
     }
 }
 
-impl<T> Eq for Cow<'_, T> where T: ?Sized + Convert + Eq {}
+impl<'a, T> Eq for Cow<'a, T> where T: ?Sized + Dairy<'a> + Eq {}
 
 impl<'a, T> PartialOrd for Cow<'a, T>
 where
-    T: ?Sized + Convert + PartialOrd,
+    T: ?Sized + Dairy<'a> + PartialOrd,
 {
     #[inline]
     fn partial_cmp(&self, other: &Cow<'a, T>) -> Option<Ordering> {
@@ -37,9 +34,9 @@ where
     }
 }
 
-impl<T> Ord for Cow<'_, T>
+impl<'a, T> Ord for Cow<'a, T>
 where
-    T: ?Sized + Convert + Ord,
+    T: ?Sized + Dairy<'a> + Ord,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
@@ -79,19 +76,19 @@ impl_basic! {
 
     (str, String)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (str, OsStr)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (str, OsString)
 
     // Cow<[T]>
 
-    ([T], [U], { T: Clone + PartialEq<U>, U })
+    ([T], [U], { T: 'a + Clone + PartialEq<U>, U })
 
-    ([T], Vec<U>, { T: Clone + PartialEq<U>, U })
+    ([T], Vec<U>, { T: 'a + Clone + PartialEq<U>, U })
 
-    ([T], [U; N], { T: Clone + PartialEq<U>, U, const N: usize })
+    ([T], [U; N], { T: 'a + Clone + PartialEq<U>, U, const N: usize })
 
     // Cow<CStr>
 
@@ -103,29 +100,29 @@ impl_basic! {
 
     // Cow<OsStr>
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsStr, OsStr)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsStr, OsString)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsStr, Path)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsStr, PathBuf)
 
     // Cow<Path>
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (Path, Path)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (Path, PathBuf)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (Path, OsStr)
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (Path, OsString)
 }

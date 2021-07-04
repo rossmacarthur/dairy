@@ -1,3 +1,5 @@
+//! Restrict [`Dairy`](crate::Dairy) implementations to this crate.
+
 pub trait Sealed {}
 
 impl Sealed for str {}

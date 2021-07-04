@@ -14,16 +14,12 @@ categories = ["memory-management"]
 serde = { version = "1.0", default-features = false, optional = true }
 
 [dev-dependencies]
-# HACK: enable the `unix` feature for tests
-# See https://github.com/rust-lang/cargo/issues/2911
-_self = { package = "dairy", path = ".", features = ["unix"] }
 beef = "0.5.0"
 criterion = "0.3.4"
 
 [features]
 default = ["std"]
 std = []
-unix = ["std"]
 
 [[bench]]
 name = "main"

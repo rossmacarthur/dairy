@@ -3,10 +3,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 
 #[cfg(feature = "std")]
-use std::ffi::{CStr, CString};
-#[cfg(feature = "unix")]
 use std::{
-    ffi::{OsStr, OsString},
+    ffi::{CStr, CString, OsStr, OsString},
     path::{Path, PathBuf},
 };
 
@@ -107,29 +105,29 @@ macro_rules! impl_from {
 impl_basic! {
     (String, str, as_str, into_string),
 
-    (Vec<T>, [T], { T: Clone }, { T: Copy }, as_slice, into_vec),
+    (Vec<T>, [T], { T: 'a + Clone }, { T: 'a + Copy }, as_slice, into_vec),
 
     #[cfg(feature = "std")]
     (CString, CStr, as_c_str, into_c_string),
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (OsString, OsStr, as_os_str, into_os_string),
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     (PathBuf, Path, as_path, into_path_buf),
 }
 
 impl_from! {
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     ((OsString, OsStr) <= (String, str, as_str))
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     ((OsString, OsStr) <= (PathBuf, Path, as_os_str))
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     ((PathBuf, Path) <= (String, str, as_str))
 
-    #[cfg(feature = "unix")]
+    #[cfg(feature = "std")]
     ((PathBuf, Path) <= (OsString, OsStr, as_os_str))
 }
 
@@ -140,7 +138,7 @@ impl<'a> From<char> for Cow<'a, str> {
     }
 }
 
-impl<'a, T: Clone, const N: usize> From<[T; N]> for Cow<'a, [T]> {
+impl<'a, T: 'a + Clone, const N: usize> From<[T; N]> for Cow<'a, [T]> {
     #[inline]
     fn from(v: [T; N]) -> Self {
         Cow::owned(<[T]>::into_vec(Box::new(v)))

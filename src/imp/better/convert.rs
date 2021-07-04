@@ -1,3 +1,5 @@
+//! Convert a [`ToOwned`] type to and from parts.
+
 use core::mem::ManuallyDrop;
 use core::ptr;
 use core::ptr::NonNull;
@@ -6,29 +8,19 @@ use alloc::borrow::ToOwned;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-#[cfg(feature = "std")]
-use std::{
-    ffi::{CStr, CString},
-    os::raw::c_char,
-};
-#[cfg(feature = "unix")]
-use std::{
-    ffi::{OsStr, OsString},
-    os::unix::ffi::{OsStrExt, OsStringExt},
-    path::{Path, PathBuf},
-};
+#[cfg(unix)]
+use std::os::unix::ffi::{OsStrExt, OsStringExt};
 
-use crate::extent::Extent;
-use crate::sealed;
+use super::extent::Extent;
 
-/// Whether or not this extra data describes and owned type.
+/// Whether or not this extra data describes an owned type.
 pub trait IsOwned {
     fn is_owned(&self) -> bool;
 }
 
 /// Convert a [`ToOwned`] type to and from parts.
-pub unsafe trait Convert: ToOwned + sealed::Sealed {
-    /// The pointer type that will be used in [`Cow`][crate::Cow].
+pub unsafe trait Convert: ToOwned {
+    /// The pointer type that will be used in the better `Cow`.
     type Ptr;
 
     /// Any extra data that is required to reconstruct an owned or borrowed
@@ -115,8 +107,8 @@ unsafe impl<T: Clone> Convert for [T] {
 }
 
 #[cfg(feature = "std")]
-unsafe impl Convert for CStr {
-    type Ptr = c_char;
+unsafe impl Convert for std::ffi::CStr {
+    type Ptr = std::os::raw::c_char;
     type Extent = bool;
 
     #[inline]
@@ -138,12 +130,13 @@ unsafe impl Convert for CStr {
 
     #[inline]
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, _: Self::Extent) -> Self::Owned {
-        unsafe { CString::from_raw(ptr.as_ptr()) }
+        unsafe { std::ffi::CString::from_raw(ptr.as_ptr()) }
     }
 }
 
-#[cfg(feature = "unix")]
-unsafe impl Convert for OsStr {
+#[cfg(unix)]
+#[cfg(feature = "std")]
+unsafe impl Convert for std::ffi::OsStr {
     type Ptr = u8;
     type Extent = Extent;
 
@@ -164,32 +157,33 @@ unsafe impl Convert for OsStr {
 
     #[inline]
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extent) -> Self::Owned {
-        unsafe { OsString::from_vec(<[u8]>::make_owned(ptr, extra)) }
+        unsafe { std::ffi::OsString::from_vec(<[u8]>::make_owned(ptr, extra)) }
     }
 }
 
-#[cfg(feature = "unix")]
-unsafe impl Convert for Path {
+#[cfg(unix)]
+#[cfg(feature = "std")]
+unsafe impl Convert for std::path::Path {
     type Ptr = u8;
     type Extent = Extent;
 
     #[inline]
     fn unmake_borrowed(b: &Self) -> (NonNull<Self::Ptr>, Self::Extent) {
-        OsStr::unmake_borrowed(b.as_os_str())
+        std::ffi::OsStr::unmake_borrowed(b.as_os_str())
     }
 
     #[inline]
     fn unmake_owned(o: Self::Owned) -> (NonNull<Self::Ptr>, Self::Extent) {
-        OsStr::unmake_owned(o.into_os_string())
+        std::ffi::OsStr::unmake_owned(o.into_os_string())
     }
 
     #[inline]
     unsafe fn make_ptr(ptr: NonNull<Self::Ptr>, extra: Self::Extent) -> *const Self {
-        unsafe { OsStr::make_ptr(ptr, extra) as *const Self }
+        unsafe { std::ffi::OsStr::make_ptr(ptr, extra) as *const Self }
     }
 
     #[inline]
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extent) -> Self::Owned {
-        unsafe { PathBuf::from(OsStr::make_owned(ptr, extra)) }
+        unsafe { std::path::PathBuf::from(std::ffi::OsStr::make_owned(ptr, extra)) }
     }
 }
