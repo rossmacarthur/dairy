@@ -21,9 +21,10 @@ where
     fn into_owned(self) -> T::Owned;
 }
 
-/// Internal trait to provide a layer of indirection allows us to have different
-/// [`Cow`](crate::Cow) implementations for the same type across different
-/// platforms.
+/// Internal trait which allows us to have different [`Cow`](crate::Cow)
+/// implementations for the same type across different platforms.
+///
+/// This is a *sealed* trait so only this crate can implement it.
 pub trait Dairy<'a>: ToOwned + sealed::Sealed {
     type Cow: Cow<'a, Self>;
 }

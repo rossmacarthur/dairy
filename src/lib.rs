@@ -7,16 +7,38 @@
 //! ```
 //!
 //! [`dairy::Cow`][Cow] is an improved version of the standard library
-//! [`std::borrow::Cow`]. On 64-bit Unix platforms it is just 2 words wide,
-//! storing the length, capacity, and the ownership tag all in one word! On
-//! 32-bit Unix platforms it is 3 words wide, storing the capacity and the
-//! ownership tag in the same word. On non-Unix platforms it falls back to the
-//! standard library implementation which is 4 words wide.
+//! [`std::borrow::Cow`]. Depending on the platform and type this crate
+//! transparently provides a better underlying implementation which will be more
+//! compact. This crate currently supports the following types: [`str`],
+//! [`[T]`][slice], [`CStr`], [`OsStr`], and [`Path`].
 //!
 //! [`dairy::Cow`][Cow] is also able to provide many more [`From`]
 //! implementations; some which are not possible for the standard library to
-//! provide due to the `core`, `alloc`, and `std` split. Most notably
-//! `Cow<Path>` has the useful [`From<&str>`] implementation.
+//! provide due to the `alloc`, `std` split. For example `Cow<Path>` now has
+//! the useful `From<&str>` implementation.
+//!
+//! ### Underlying implementation
+//!
+//! - On 64-bit platforms the compact implementation of [`Cow`] is two words
+//!   wide, storing the length, capacity, and the ownership tag in the same
+//!   word.
+//! - On 32-bit platforms the compact implementation of [`Cow`] is three words
+//!   wide, storing the capacity and the ownership tag in the same word.
+//! - The default implementation simply used the the standard library
+//!   implementation which is four words wide. This is typically required in
+//!   cases where the standard library does not provide a `.into_raw_parts()` or
+//!   equivalent method for types.
+//!
+//! The following table documents how `Cow<T>` is implemented for each type on
+//! Unix and Windows.
+//!
+//! | `T`            | cfg(unix) | cfg(windows) |
+//! | -------------- | --------- | ------------ |
+//! | [`str`]        | *compact* | *compact*    |
+//! | [`[T]`][slice] | *compact* | *compact*    |
+//! | [`CStr`]       | *compact* | *compact*    |
+//! | [`OsStr`]      | *compact* | **default**  |
+//! | [`Path`]       | *compact* | **default**  |
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]

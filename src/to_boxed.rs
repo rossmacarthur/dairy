@@ -4,6 +4,9 @@ use alloc::borrow::ToOwned;
 use alloc::boxed::Box;
 
 /// Converts the owned version of self into boxed data.
+///
+/// This trait should not be used directly but instead through the
+/// [`.into_boxed()`][crate::Cow::into_boxed] method on [`Cow`][crate::Cow].
 pub trait ToBoxed: ToOwned {
     fn to_boxed(o: Self::Owned) -> Box<Self>;
 }
