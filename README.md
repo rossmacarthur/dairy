@@ -18,7 +18,7 @@ Add the following to your Cargo manifest.
 
 ```toml
 [dependencies]
-dairy = "0.1"
+dairy = "0.2"
 ```
 
 `no_std` is also supported by disabling the default `std` feature. An allocator
@@ -26,14 +26,14 @@ is required.
 
 ```toml
 [dependencies]
-dairy = { version = "0.1", default-features = false }
+dairy = { version = "0.2", default-features = false }
 ```
 
 [Serde](https://serde.rs) is supported behind the `serde` feature.
 
 ```toml
 [dependencies]
-dairy = { version = "0.1", features = ["serde"] }
+dairy = { version = "0.2", features = ["serde"] }
 ```
 
 ## 🤔 Description
