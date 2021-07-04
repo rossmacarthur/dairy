@@ -31,6 +31,7 @@ extern crate std;
 mod as_ref;
 mod cmp;
 mod convert;
+mod extra;
 mod from;
 mod sealed;
 mod serde;
