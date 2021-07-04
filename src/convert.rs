@@ -3,7 +3,6 @@ use core::ptr;
 use core::ptr::NonNull;
 
 use alloc::borrow::ToOwned;
-use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
 
@@ -136,9 +135,6 @@ pub unsafe trait Convert: ToOwned + private::Sealed {
 
     /// Returns an owned version of self constructed from parts.
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned;
-
-    /// Converts the owned version of self into boxed data.
-    fn to_boxed(o: Self::Owned) -> Box<Self>;
 }
 
 impl IsOwned for bool {
@@ -179,11 +175,6 @@ unsafe impl Convert for str {
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned {
         unsafe { String::from_raw_parts(ptr.as_ptr(), extra.len(), extra.capacity()) }
     }
-
-    #[inline]
-    fn to_boxed(o: Self::Owned) -> Box<Self> {
-        o.into_boxed_str()
-    }
 }
 
 unsafe impl<T: Clone> Convert for [T] {
@@ -209,11 +200,6 @@ unsafe impl<T: Clone> Convert for [T] {
     #[inline]
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned {
         unsafe { Vec::from_raw_parts(ptr.as_ptr(), extra.len(), extra.capacity()) }
-    }
-
-    #[inline]
-    fn to_boxed(o: Self::Owned) -> Box<Self> {
-        o.into_boxed_slice()
     }
 }
 
@@ -243,11 +229,6 @@ unsafe impl Convert for CStr {
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, _: Self::Extra) -> Self::Owned {
         unsafe { CString::from_raw(ptr.as_ptr()) }
     }
-
-    #[inline]
-    fn to_boxed(o: Self::Owned) -> Box<Self> {
-        o.into_boxed_c_str()
-    }
 }
 
 #[cfg(feature = "unix")]
@@ -274,11 +255,6 @@ unsafe impl Convert for OsStr {
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned {
         unsafe { OsString::from_vec(<[u8]>::make_owned(ptr, extra)) }
     }
-
-    #[inline]
-    fn to_boxed(o: Self::Owned) -> Box<Self> {
-        o.into_boxed_os_str()
-    }
 }
 
 #[cfg(feature = "unix")]
@@ -304,10 +280,5 @@ unsafe impl Convert for Path {
     #[inline]
     unsafe fn make_owned(ptr: NonNull<Self::Ptr>, extra: Self::Extra) -> Self::Owned {
         unsafe { PathBuf::from(OsStr::make_owned(ptr, extra)) }
-    }
-
-    #[inline]
-    fn to_boxed(o: Self::Owned) -> Box<Self> {
-        o.into_boxed_path()
     }
 }

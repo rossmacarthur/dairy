@@ -33,6 +33,7 @@ mod cmp;
 mod convert;
 mod from;
 mod serde;
+mod to_boxed;
 
 use core::borrow::Borrow;
 use core::fmt;
@@ -51,6 +52,7 @@ use std::{ffi::OsStr, path::Path};
 
 pub use crate::convert::Convert;
 use crate::convert::IsOwned;
+pub use crate::to_boxed::ToBoxed;
 
 /// Convenient type alias for a clone-on-write [`str`].
 pub type String<'a> = Cow<'a, str>;
@@ -153,7 +155,10 @@ where
     ///
     /// Clones the data if it is not already owned.
     #[inline]
-    pub fn into_boxed(self) -> Box<T> {
+    pub fn into_boxed(self) -> Box<T>
+    where
+        T: ToBoxed,
+    {
         T::to_boxed(self.into_owned())
     }
 }
