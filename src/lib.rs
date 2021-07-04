@@ -31,7 +31,7 @@ extern crate std;
 mod as_ref;
 mod cmp;
 mod convert;
-mod extra;
+mod extent;
 mod from;
 mod sealed;
 mod serde;
@@ -91,7 +91,7 @@ where
 
     /// Any extra data that is required to reconstruct an owned or borrowed
     /// variant of this type. For example: length and capacity.
-    extra: T::Extra,
+    extent: T::Extent,
 
     /// For the lifetime.
     marker: PhantomData<&'a T>,
@@ -104,10 +104,10 @@ where
     /// Construct from borrowed data.
     #[inline]
     pub fn borrowed(b: &'a T) -> Self {
-        let (ptr, extra) = T::unmake_borrowed(b);
+        let (ptr, extent) = T::unmake_borrowed(b);
         Self {
             ptr,
-            extra,
+            extent,
             marker: PhantomData,
         }
     }
@@ -115,10 +115,10 @@ where
     /// Construct from owned data.
     #[inline]
     pub fn owned(o: T::Owned) -> Self {
-        let (ptr, extra) = T::unmake_owned(o);
+        let (ptr, extent) = T::unmake_owned(o);
         Self {
             ptr,
-            extra,
+            extent,
             marker: PhantomData,
         }
     }
@@ -126,19 +126,19 @@ where
     #[inline]
     fn make_borrowed(&self) -> &'a T {
         // SAFETY: This is valid for both owned and borrowed variants.
-        unsafe { &*T::make_ptr(self.ptr, self.extra) }
+        unsafe { &*T::make_ptr(self.ptr, self.extent) }
     }
 
     /// Returns true if the data is borrowed.
     #[inline]
     pub fn is_borrowed(&self) -> bool {
-        !self.extra.is_owned()
+        !self.extent.is_owned()
     }
 
     /// Returns true if the data is owned.
     #[inline]
     pub fn is_owned(&self) -> bool {
-        self.extra.is_owned()
+        self.extent.is_owned()
     }
 
     /// Converts into owned data.
@@ -147,7 +147,7 @@ where
     pub fn into_owned(self) -> T::Owned {
         if self.is_owned() {
             let cow = ManuallyDrop::new(self);
-            unsafe { T::make_owned(cow.ptr, cow.extra) }
+            unsafe { T::make_owned(cow.ptr, cow.extent) }
         } else {
             self.make_borrowed().to_owned()
         }
@@ -172,7 +172,7 @@ where
     #[inline]
     fn drop(&mut self) {
         if self.is_owned() {
-            unsafe { T::make_owned(self.ptr, self.extra) };
+            unsafe { T::make_owned(self.ptr, self.extent) };
         }
     }
 }

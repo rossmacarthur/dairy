@@ -1,9 +1,9 @@
 use core::ptr::NonNull;
 
 #[cfg(not(target_pointer_width = "64"))]
-pub use medium::Extra;
+pub use medium::Extent;
 #[cfg(target_pointer_width = "64")]
-pub use small::Extra;
+pub use small::Extent;
 
 #[cfg(target_pointer_width = "64")]
 mod small {
@@ -14,13 +14,13 @@ mod small {
     const UPPER: usize = !LOWER;
 
     #[derive(Clone, Copy)]
-    pub struct Extra(usize);
+    pub struct Extent(usize);
 
-    impl Extra {
+    impl Extent {
         #[inline]
         pub unsafe fn borrowed<T>(ptr: *const T, len: usize) -> (NonNull<T>, Self) {
             let ptr = unsafe { NonNull::new_unchecked(ptr as *mut T) };
-            (ptr, Extra(len))
+            (ptr, Self(len))
         }
 
         #[inline]
@@ -28,7 +28,7 @@ mod small {
             assert!((cap & LOWER) == cap, "capacity out of bounds");
             let extra = (cap << SHIFT) | len;
             let ptr = unsafe { NonNull::new_unchecked(ptr) };
-            (ptr, Extra(extra))
+            (ptr, Self(extra))
         }
 
         #[inline]
@@ -48,22 +48,22 @@ mod medium {
     use super::*;
 
     #[derive(Clone, Copy)]
-    pub struct Extra {
+    pub struct Extent {
         len: usize,
         cap: usize,
     }
 
-    impl Extra {
+    impl Extent {
         #[inline]
         pub unsafe fn borrowed<T>(ptr: *const T, len: usize) -> (NonNull<T>, Self) {
             let ptr = unsafe { NonNull::new_unchecked(ptr as *mut T) };
-            (ptr, Extra { len, cap: 0 })
+            (ptr, Self { len, cap: 0 })
         }
 
         #[inline]
         pub unsafe fn owned<T>(ptr: *mut T, len: usize, cap: usize) -> (NonNull<T>, Self) {
             let ptr = unsafe { NonNull::new_unchecked(ptr) };
-            (ptr, Extra { len, cap })
+            (ptr, Self { len, cap })
         }
 
         #[inline]
