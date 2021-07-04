@@ -1,3 +1,5 @@
+#![allow(clippy::wrong_self_convention)]
+
 use alloc::borrow::ToOwned;
 use alloc::boxed::Box;
 

@@ -18,18 +18,18 @@ fn dairy_cow_to_dairy_cow(input: DairyCow<str>) -> DairyCow<str> {
     if input.starts_with("https://") {
         input
     } else {
-        input.apply(|o| o.insert_str(0, "https://"))
+        let mut o = input.into_owned();
+        o.insert_str(0, "https://");
+        DairyCow::owned(o)
     }
 }
 
 fn std_cow_to_std_cow(mut input: StdCow<str>) -> StdCow<str> {
-    if input.starts_with("https://") {
-        input
-    } else {
+    if !input.starts_with("https://") {
         let o = input.to_mut();
         o.insert_str(0, "https://");
-        input
     }
+    input
 }
 
 fn maybe_modify(c: &mut Criterion) {

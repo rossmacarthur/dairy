@@ -1,0 +1,56 @@
+name: build
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: --deny warnings
+
+jobs:
+  lint:
+    name: lint (${{ matrix.toolchain }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        toolchain: [stable, beta, nightly]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        components: rustfmt, clippy
+        override: true
+
+    - name: Rustfmt
+      run: cargo fmt -- --check
+
+    - name: Clippy
+      run: cargo clippy --workspace --all-targets
+
+  test:
+    name: test (${{ matrix.toolchain }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+        - { os: ubuntu-latest, toolchain: stable }
+        - { os: ubuntu-latest, toolchain: beta }
+        - { os: ubuntu-latest, toolchain: nightly }
+        - { os: macos-latest, toolchain: stable }
+        - { os: windows-latest, toolchain: stable }
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        profile: minimal
+        override: true
+
+    - name: Test
+      run: cargo test --workspace --all-features

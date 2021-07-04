@@ -1,5 +1,9 @@
 # dairy
 
+[![Crates.io Version](https://img.shields.io/crates/v/dairy.svg)](https://crates.io/crates/dairy)
+[![Docs.rs Latest](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/dairy)
+[![Build Status](https://img.shields.io/github/workflow/status/rossmacarthur/dairy/build/trunk)](https://github.com/rossmacarthur/dairy/actions?query=workflow%3Abuild)
+
 A more compact, user friendly clone-on-write smart pointer.
 
 ```rust
