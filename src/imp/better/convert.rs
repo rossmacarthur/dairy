@@ -8,8 +8,10 @@ use alloc::borrow::ToOwned;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-#[cfg(unix)]
+#[cfg(all(feature = "std", unix))]
 use std::os::unix::ffi::{OsStrExt, OsStringExt};
+#[cfg(all(feature = "std", target_os = "wasi"))]
+use std::os::wasi::ffi::{OsStrExt, OsStringExt};
 
 use super::extent::Extent;
 
@@ -134,8 +136,7 @@ unsafe impl Convert for std::ffi::CStr {
     }
 }
 
-#[cfg(unix)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", os_str_ext))]
 unsafe impl Convert for std::ffi::OsStr {
     type Ptr = u8;
     type Extent = Extent;
@@ -161,8 +162,7 @@ unsafe impl Convert for std::ffi::OsStr {
     }
 }
 
-#[cfg(unix)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", os_str_ext))]
 unsafe impl Convert for std::path::Path {
     type Ptr = u8;
     type Extent = Extent;

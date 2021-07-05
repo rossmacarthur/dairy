@@ -29,16 +29,16 @@
 //!   cases where the standard library does not provide an `.into_raw_parts()`
 //!   or equivalent method for the owned version of types.
 //!
-//! The following table documents how `Cow<T>` is implemented for each type on Unix
-//! and Windows.
+//! The following table documents how `Cow<T>` is implemented for each type on
+//! depending on the platform.
 //!
-//! | `Cow<T>`     | cfg(unix) | cfg(windows) |
-//! | ------------ | --------- | ------------ |
-//! | `Cow<str>`   | *compact* | *compact*    |
-//! | `Cow<[T]>`   | *compact* | *compact*    |
-//! | `Cow<CStr>`  | *compact* | *compact*    |
-//! | `Cow<OsStr>` | *compact* | **default**  |
-//! | `Cow<Path>`  | *compact* | **default**  |
+//! | `Cow<T>`     | Unix/WASI | Other          |
+//! | ------------ | --------- | -------------- |
+//! | `Cow<str>`   | *compact* | *compact*      |
+//! | `Cow<[T]>`   | *compact* | *compact*      |
+//! | `Cow<CStr>`  | *compact* | *compact*      |
+//! | `Cow<OsStr>` | *compact* | **default**    |
+//! | `Cow<Path>`  | *compact* | **default**    |
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]

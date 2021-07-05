@@ -42,26 +42,22 @@ impl<'a> Dairy<'a> for std::ffi::CStr {
     type Cow = better::Cow<'a, Self>;
 }
 
-#[cfg(unix)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", os_str_ext))]
 impl<'a> Dairy<'a> for std::ffi::OsStr {
     type Cow = better::Cow<'a, Self>;
 }
 
-#[cfg(windows)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(os_str_ext)))]
 impl<'a> Dairy<'a> for std::ffi::OsStr {
     type Cow = alloc::borrow::Cow<'a, Self>;
 }
 
-#[cfg(unix)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", os_str_ext))]
 impl<'a> Dairy<'a> for std::path::Path {
     type Cow = better::Cow<'a, Self>;
 }
 
-#[cfg(windows)]
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(os_str_ext)))]
 impl<'a> Dairy<'a> for std::path::Path {
     type Cow = alloc::borrow::Cow<'a, Self>;
 }
