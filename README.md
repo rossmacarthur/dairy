@@ -39,9 +39,9 @@ dairy = { version = "0.2", features = ["serde"] }
 ## 🤔 Description
 
 `dairy::Cow` is an improved version of the standard library `std::borrow::Cow`.
-Depending on the platform and type this crate transparently provides a better
-underlying implementation which will be more compact. This crate currently
-supports the following types: `str`, `[T]` `CStr`, `OsStr`, and `Path`.
+Depending on the platform and type this crate provides a better underlying
+implementation which will be more compact. This crate currently supports the
+following types: `str`, `[T]`, `CStr`, `OsStr`, and `Path`.
 
 `dairy::Cow` is also able to provide many more `From` implementations; some
 which are not possible for the standard library to provide due to the `alloc`,
@@ -50,23 +50,25 @@ implementation.
 
 ### Underlying implementation
 
-- On 64-bit platforms the compact implementation of `Cow` is two words wide,
+- On 64-bit platforms the *compact* implementation of `Cow` is two words wide,
   storing the length, capacity, and the ownership tag in the same word.
-- On 32-bit platforms the compact implementation of `Cow` is three words wide,
+- On 32-bit platforms the *compact* implementation of `Cow` is three words wide,
   storing the capacity and the ownership tag in the same word.
-- The default implementation simply used the the standard library implementation
-  which is four words wide. This is typically required in cases where the
-  standard library does not provide a `.into_raw_parts()` or equivalent method
-  for types. The following table documents how `Cow<T>` is implemented for each
-  type on Unix and Windows.
+- The **default** implementation simply uses the the standard library
+  implementation which is four words wide. This is typically required in cases
+  where the standard library does not provide an `.into_raw_parts()` or
+  equivalent method for the owned version of types.
 
-| `T`     | cfg(unix) | cfg(windows) |
-| ------- | --------- | ------------ |
-| `str`   | *compact* | *compact*    |
-| `[T]`   | *compact* | *compact*    |
-| `CStr`  | *compact* | *compact*    |
-| `OsStr` | *compact* | **default**  |
-| `Path`  | *compact* | **default**  |
+The following table documents how `Cow<T>` is implemented for each type on Unix
+and Windows.
+
+| `Cow<T>`     | cfg(unix) | cfg(windows) |
+| ------------ | --------- | ------------ |
+| `Cow<str>`   | *compact* | *compact*    |
+| `Cow<[T]>`   | *compact* | *compact*    |
+| `Cow<CStr>`  | *compact* | *compact*    |
+| `Cow<OsStr>` | *compact* | **default**  |
+| `Cow<Path>`  | *compact* | **default**  |
 
 ## Acknowledgements
 

@@ -7,10 +7,10 @@
 //! ```
 //!
 //! [`dairy::Cow`][Cow] is an improved version of the standard library
-//! [`std::borrow::Cow`]. Depending on the platform and type this crate
-//! transparently provides a better underlying implementation which will be more
-//! compact. This crate currently supports the following types: [`str`],
-//! [`[T]`][slice], [`CStr`], [`OsStr`], and [`Path`].
+//! [`std::borrow::Cow`]. Depending on the platform and type this crate provides
+//! a better underlying implementation which will be more compact. This crate
+//! currently supports the following types: [`str`], [`[T]`][slice], [`CStr`],
+//! [`OsStr`], and [`Path`].
 //!
 //! [`dairy::Cow`][Cow] is also able to provide many more [`From`]
 //! implementations; some which are not possible for the standard library to
@@ -19,26 +19,26 @@
 //!
 //! ### Underlying implementation
 //!
-//! - On 64-bit platforms the compact implementation of [`Cow`] is two words
+//! - On 64-bit platforms the *compact* implementation of [`Cow`] is two words
 //!   wide, storing the length, capacity, and the ownership tag in the same
 //!   word.
-//! - On 32-bit platforms the compact implementation of [`Cow`] is three words
+//! - On 32-bit platforms the *compact* implementation of [`Cow`] is three words
 //!   wide, storing the capacity and the ownership tag in the same word.
-//! - The default implementation simply used the the standard library
+//! - The **default** implementation simply uses the the standard library
 //!   implementation which is four words wide. This is typically required in
-//!   cases where the standard library does not provide a `.into_raw_parts()` or
-//!   equivalent method for types.
+//!   cases where the standard library does not provide an `.into_raw_parts()`
+//!   or equivalent method for the owned version of types.
 //!
-//! The following table documents how `Cow<T>` is implemented for each type on
-//! Unix and Windows.
+//! The following table documents how `Cow<T>` is implemented for each type on Unix
+//! and Windows.
 //!
-//! | `T`            | cfg(unix) | cfg(windows) |
-//! | -------------- | --------- | ------------ |
-//! | [`str`]        | *compact* | *compact*    |
-//! | [`[T]`][slice] | *compact* | *compact*    |
-//! | [`CStr`]       | *compact* | *compact*    |
-//! | [`OsStr`]      | *compact* | **default**  |
-//! | [`Path`]       | *compact* | **default**  |
+//! | `Cow<T>`     | cfg(unix) | cfg(windows) |
+//! | ------------ | --------- | ------------ |
+//! | `Cow<str>`   | *compact* | *compact*    |
+//! | `Cow<[T]>`   | *compact* | *compact*    |
+//! | `Cow<CStr>`  | *compact* | *compact*    |
+//! | `Cow<OsStr>` | *compact* | **default**  |
+//! | `Cow<Path>`  | *compact* | **default**  |
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
