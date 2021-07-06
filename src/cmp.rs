@@ -47,7 +47,7 @@ where
 macro_rules! impl_basic {
     ($(
         $(#[$attrs:meta])*
-        ($Ty:ty, $To:ty $(, { $($bound:tt)+ })?)
+        { $Ty:ty, $To:ty $(, { $($bound:tt)+ })? }
     )+) => {
         $(
             $(#[$attrs])*
@@ -72,57 +72,57 @@ macro_rules! impl_basic {
 impl_basic! {
     // Cow<str>
 
-    (str, str)
+    { str, str }
 
-    (str, String)
-
-    #[cfg(feature = "std")]
-    (str, OsStr)
+    { str, String }
 
     #[cfg(feature = "std")]
-    (str, OsString)
+    { str, OsStr }
+
+    #[cfg(feature = "std")]
+    { str, OsString }
 
     // Cow<[T]>
 
-    ([T], [U], { T: 'a + Clone + PartialEq<U>, U })
+    { [T], [U], { T: 'a + Clone + PartialEq<U>, U } }
 
-    ([T], Vec<U>, { T: 'a + Clone + PartialEq<U>, U })
+    { [T], Vec<U>, { T: 'a + Clone + PartialEq<U>, U } }
 
-    ([T], [U; N], { T: 'a + Clone + PartialEq<U>, U, const N: usize })
+    { [T], [U; N], { T: 'a + Clone + PartialEq<U>, U, const N: usize } }
 
     // Cow<CStr>
 
     #[cfg(feature = "std")]
-    (CStr, CStr)
+    { CStr, CStr }
 
     #[cfg(feature = "std")]
-    (CStr, CString)
+    { CStr, CString }
 
     // Cow<OsStr>
 
     #[cfg(feature = "std")]
-    (OsStr, OsStr)
+    { OsStr, OsStr }
 
     #[cfg(feature = "std")]
-    (OsStr, OsString)
+    { OsStr, OsString }
 
     #[cfg(feature = "std")]
-    (OsStr, Path)
+    { OsStr, Path }
 
     #[cfg(feature = "std")]
-    (OsStr, PathBuf)
+    { OsStr, PathBuf }
 
     // Cow<Path>
 
     #[cfg(feature = "std")]
-    (Path, Path)
+    { Path, Path }
 
     #[cfg(feature = "std")]
-    (Path, PathBuf)
+    { Path, PathBuf }
 
     #[cfg(feature = "std")]
-    (Path, OsStr)
+    { Path, OsStr }
 
     #[cfg(feature = "std")]
-    (Path, OsString)
+    { Path, OsString }
 }

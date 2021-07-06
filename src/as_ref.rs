@@ -16,7 +16,7 @@ where
 macro_rules! impl_basic {
     ($(
         $(#[$attrs:meta])*
-        ($Ty:ty as $As:ty)
+        { $Ty:ty => $As:ty }
     )+) => {
         $(
             $(#[$attrs])*
@@ -31,17 +31,17 @@ macro_rules! impl_basic {
 }
 
 impl_basic! {
-    (str as [u8])
+    { str => [u8] }
 
     #[cfg(feature = "std")]
-    (str as OsStr)
+    { str => OsStr }
 
     #[cfg(feature = "std")]
-    (str as Path)
+    { str => Path }
 
     #[cfg(feature = "std")]
-    (OsStr as Path)
+    { OsStr => Path }
 
     #[cfg(feature = "std")]
-    (Path as OsStr)
+    { Path => OsStr }
 }

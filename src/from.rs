@@ -10,12 +10,13 @@ use std::{
 
 use crate::Cow;
 
-macro_rules! impl_basic {
+macro_rules! impl_from {
     ($(
         $(#[$attrs:meta])*
-        (
+        {
             $Owned:ty, $Ty:ty, $({ $($clone:tt)+ }, { $($copy:tt)+ },)?
-            $as_ref:ident, $into_owned:ident),
+            $as_ref:ident, $into_owned:ident
+        },
     )+) => {
         $(
             $(#[$attrs])*
@@ -69,66 +70,66 @@ macro_rules! impl_basic {
     };
 }
 
-macro_rules! impl_from {
+macro_rules! impl_from_other {
     ($(
         $(#[$attrs:meta])*
-        (($IntoOwned:ty, $IntoTy:ty) <= ($Owned:ty, $Ty:ty, $as_ref:ident) )
+        {  $FromOwned:ty, $FromTy:ty, $as_ref:ident => $Owned:ty, $Ty:ty }
     )+) => {
         $(
             $(#[$attrs])*
-            impl<'a> From<&'a $Ty> for Cow<'a, $IntoTy> {
+            impl<'a> From<&'a $FromTy> for Cow<'a, $Ty> {
                 #[inline]
-                fn from(s: &'a $Ty) -> Self {
-                    Cow::borrowed(<$IntoTy>::new(s))
+                fn from(s: &'a $FromTy) -> Self {
+                    Cow::borrowed(<$Ty>::new(s))
                 }
             }
 
             $(#[$attrs])*
-            impl<'a> From<$Owned> for Cow<'a, $IntoTy> {
+            impl<'a> From<$FromOwned> for Cow<'a, $Ty> {
                 #[inline]
-                fn from(s: $Owned) -> Self {
-                    Cow::owned(<$IntoOwned>::from(s))
+                fn from(s: $FromOwned) -> Self {
+                    Cow::owned(<$Owned>::from(s))
                 }
             }
 
             $(#[$attrs])*
-            impl<'a> From<&'a $Owned> for Cow<'a, $IntoTy> {
+            impl<'a> From<&'a $FromOwned> for Cow<'a, $Ty> {
                 #[inline]
-                fn from(s: &'a $Owned) -> Self {
-                    Cow::borrowed(<$IntoTy>::new(s.$as_ref()))
+                fn from(s: &'a $FromOwned) -> Self {
+                    Cow::borrowed(<$Ty>::new(s.$as_ref()))
                 }
             }
         )+
     };
 }
 
-impl_basic! {
-    (String, str, as_str, into_string),
+impl_from! {
+    { String, str, as_str, into_string },
 
-    (Vec<T>, [T], { T: 'a + Clone }, { T: 'a + Copy }, as_slice, into_vec),
-
-    #[cfg(feature = "std")]
-    (CString, CStr, as_c_str, into_c_string),
+    { Vec<T>, [T], { T: 'a + Clone }, { T: 'a + Copy }, as_slice, into_vec },
 
     #[cfg(feature = "std")]
-    (OsString, OsStr, as_os_str, into_os_string),
+    { CString, CStr, as_c_str, into_c_string },
 
     #[cfg(feature = "std")]
-    (PathBuf, Path, as_path, into_path_buf),
+    { OsString, OsStr, as_os_str, into_os_string },
+
+    #[cfg(feature = "std")]
+    { PathBuf, Path, as_path, into_path_buf },
 }
 
-impl_from! {
+impl_from_other! {
     #[cfg(feature = "std")]
-    ((OsString, OsStr) <= (String, str, as_str))
+    { String, str, as_str => OsString, OsStr }
 
     #[cfg(feature = "std")]
-    ((OsString, OsStr) <= (PathBuf, Path, as_os_str))
+    { PathBuf, Path, as_os_str => OsString, OsStr }
 
     #[cfg(feature = "std")]
-    ((PathBuf, Path) <= (String, str, as_str))
+    { String, str, as_str => PathBuf, Path }
 
     #[cfg(feature = "std")]
-    ((PathBuf, Path) <= (OsString, OsStr, as_os_str))
+    { OsString, OsStr, as_os_str  => PathBuf, Path }
 }
 
 impl<'a> From<char> for Cow<'a, str> {
