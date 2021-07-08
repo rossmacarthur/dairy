@@ -27,7 +27,7 @@ pub unsafe trait Convert: ToOwned {
 
     /// Any extra data that is required to reconstruct an owned or borrowed
     /// variant of this type. For example: length and capacity.
-    type Extent: IsOwned + Copy;
+    type Extent: Copy + Default + IsOwned;
 
     /// Convert a borrowed version of self into parts.
     fn unmake_borrowed(b: &Self) -> (NonNull<Self::Ptr>, Self::Extent);

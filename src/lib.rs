@@ -161,6 +161,17 @@ where
     {
         T::to_boxed(self.into_owned())
     }
+
+    /// Applies the given function to the owned data.
+    ///
+    /// Clones the data if it is not already owned.
+    #[inline]
+    pub fn apply<F>(&mut self, f: F)
+    where
+        F: FnOnce(&mut T::Owned),
+    {
+        self.inner.apply(f)
+    }
 }
 
 impl<'a, T> Deref for Cow<'a, T>

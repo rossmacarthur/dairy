@@ -14,20 +14,16 @@ fn beef_cow_to_beef_cow(input: BeefCow<str>) -> BeefCow<str> {
     }
 }
 
-fn dairy_cow_to_dairy_cow(input: DairyCow<str>) -> DairyCow<str> {
-    if input.starts_with("https://") {
-        input
-    } else {
-        let mut o = input.into_owned();
-        o.insert_str(0, "https://");
-        DairyCow::owned(o)
+fn dairy_cow_to_dairy_cow(mut input: DairyCow<str>) -> DairyCow<str> {
+    if !input.starts_with("https://") {
+        input.apply(|o| o.insert_str(0, "https://"));
     }
+    input
 }
 
 fn std_cow_to_std_cow(mut input: StdCow<str>) -> StdCow<str> {
     if !input.starts_with("https://") {
-        let o = input.to_mut();
-        o.insert_str(0, "https://");
+        input.to_mut().insert_str(0, "https://");
     }
     input
 }

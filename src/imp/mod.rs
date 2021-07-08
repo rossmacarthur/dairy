@@ -19,6 +19,7 @@ where
     fn is_owned(&self) -> bool;
     fn make_ref(&self) -> &T;
     fn into_owned(self) -> T::Owned;
+    fn apply<F: FnOnce(&mut T::Owned)>(&mut self, f: F);
 }
 
 /// Internal trait which allows us to have different [`Cow`](crate::Cow)

@@ -77,6 +77,27 @@ where
             self.make_ref().to_owned()
         }
     }
+
+    #[inline]
+    fn apply<F>(&mut self, f: F)
+    where
+        F: FnOnce(&mut T::Owned),
+    {
+        let mut o = if self.is_owned() {
+            // SAFETY:  This is safe because we temporarily set the `extent` to
+            // its default value which should encode a "borrowed" version.
+            // Therefore, if `f` had to panic, no double drop would occur.
+            let o = unsafe { T::make_owned(self.ptr, self.extent) };
+            self.extent = T::Extent::default();
+            o
+        } else {
+            self.make_ref().to_owned()
+        };
+        f(&mut o);
+        let (ptr, extent) = T::unmake_owned(o);
+        self.ptr = ptr;
+        self.extent = extent;
+    }
 }
 
 impl<T> Clone for Cow<'_, T>

@@ -38,4 +38,19 @@ where
     fn into_owned(self) -> T::Owned {
         self.into_owned()
     }
+
+    #[inline]
+    fn apply<F>(&mut self, f: F)
+    where
+        F: FnOnce(&mut T::Owned),
+    {
+        match self {
+            Self::Borrowed(b) => {
+                let mut o = b.to_owned();
+                f(&mut o);
+                *self = Self::Owned(o);
+            }
+            Self::Owned(ref mut o) => f(o),
+        }
+    }
 }

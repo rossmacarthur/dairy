@@ -15,7 +15,7 @@ mod small {
     const LOWER: usize = usize::MAX >> SHIFT;
     const UPPER: usize = !LOWER;
 
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Default)]
     pub struct Extent(usize);
 
     impl Extent {
@@ -49,7 +49,7 @@ mod small {
 mod medium {
     use super::*;
 
-    #[derive(Clone, Copy)]
+    #[derive(Clone, Copy, Default)]
     pub struct Extent {
         len: usize,
         cap: usize,
