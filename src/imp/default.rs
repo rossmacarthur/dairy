@@ -1,6 +1,7 @@
 //! The standard library [`Cow`] implementation.
 
-use alloc::borrow::{Borrow, Cow, ToOwned};
+pub use alloc::borrow::Cow;
+use alloc::borrow::ToOwned;
 
 use crate::imp;
 
@@ -30,17 +31,11 @@ where
 
     #[inline]
     fn make_ref(&self) -> &T {
-        match *self {
-            Self::Borrowed(b) => b,
-            Self::Owned(ref o) => o.borrow(),
-        }
+        &*self
     }
 
     #[inline]
     fn into_owned(self) -> T::Owned {
-        match self {
-            Self::Borrowed(b) => b.to_owned(),
-            Self::Owned(o) => o,
-        }
+        self.into_owned()
     }
 }

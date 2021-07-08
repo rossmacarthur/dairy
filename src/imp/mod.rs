@@ -1,7 +1,7 @@
 //! The underlying `Cow` implementations.
 
-mod better;
-mod orig;
+mod compact;
+mod default;
 mod sealed;
 
 use alloc::borrow::ToOwned;
@@ -30,34 +30,34 @@ pub trait Dairy<'a>: ToOwned + sealed::Sealed {
 }
 
 impl<'a> Dairy<'a> for str {
-    type Cow = better::Cow<'a, Self>;
+    type Cow = compact::Cow<'a, Self>;
 }
 
 impl<'a, T: Clone + 'a> Dairy<'a> for [T] {
-    type Cow = better::Cow<'a, Self>;
+    type Cow = compact::Cow<'a, Self>;
 }
 
 #[cfg(feature = "std")]
 impl<'a> Dairy<'a> for std::ffi::CStr {
-    type Cow = better::Cow<'a, Self>;
+    type Cow = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", os_str_ext))]
 impl<'a> Dairy<'a> for std::ffi::OsStr {
-    type Cow = better::Cow<'a, Self>;
+    type Cow = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", not(os_str_ext)))]
 impl<'a> Dairy<'a> for std::ffi::OsStr {
-    type Cow = alloc::borrow::Cow<'a, Self>;
+    type Cow = default::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", os_str_ext))]
 impl<'a> Dairy<'a> for std::path::Path {
-    type Cow = better::Cow<'a, Self>;
+    type Cow = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", not(os_str_ext)))]
 impl<'a> Dairy<'a> for std::path::Path {
-    type Cow = alloc::borrow::Cow<'a, Self>;
+    type Cow = default::Cow<'a, Self>;
 }
