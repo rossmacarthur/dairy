@@ -97,6 +97,9 @@ fn cow_str_owned_as_ref() {
     let s: &str = c.as_ref();
     assert_eq!(s, "Hello World!");
 
+    let b: &[u8] = c.as_ref();
+    assert_eq!(b, b"Hello World!");
+
     let s: &OsStr = c.as_ref();
     assert_eq!(s, OsStr::new("Hello World!"));
 

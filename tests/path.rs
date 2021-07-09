@@ -114,12 +114,12 @@ fn cow_path_from() {
     assert!(T::from("/hello/world").is_borrowed());
     assert!(T::from(String::from("/hello/world")).is_owned());
     assert!(T::from(&String::from("/hello/world")).is_borrowed());
-    // assert!(T::from(String::from("/hello/world").into_boxed_str()).is_owned());
+    assert!(T::from(String::from("/hello/world").into_boxed_str()).is_owned());
 
     assert!(T::from(OsStr::new("/hello/world")).is_borrowed());
     assert!(T::from(OsString::from("/hello/world")).is_owned());
     assert!(T::from(&OsString::from("/hello/world")).is_borrowed());
-    // assert!(T::from(OsString::from("/hello/world").into_boxed_path()).is_owned());
+    assert!(T::from(OsString::from("/hello/world").into_boxed_os_str()).is_owned());
 }
 
 #[test]

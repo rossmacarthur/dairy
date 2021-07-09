@@ -106,7 +106,7 @@ fn cow_os_str_from() {
     Box::<OsStr>::from(T::borrowed(OsStr::new("Hello World!")));
     Box::<OsStr>::from(T::owned(OsString::from("Hello World!")));
 
-    // assert!(T::from('H').is_owned());
+    assert!(T::from('H').is_owned());
     assert!(T::from(OsStr::new("Hello World!")).is_borrowed());
     assert!(T::from(OsString::from("Hello World!")).is_owned());
     assert!(T::from(&OsString::from("Hello World!")).is_borrowed());
@@ -115,12 +115,12 @@ fn cow_os_str_from() {
     assert!(T::from("Hello World!").is_borrowed());
     assert!(T::from(String::from("Hello World!")).is_owned());
     assert!(T::from(&String::from("Hello World!")).is_borrowed());
-    // assert!(T::from(String::from("Hello World!").into_boxed_str()).is_owned());
+    assert!(T::from(String::from("Hello World!").into_boxed_str()).is_owned());
 
     assert!(T::from(Path::new("Hello World!")).is_borrowed());
     assert!(T::from(PathBuf::from("Hello World!")).is_owned());
     assert!(T::from(&PathBuf::from("Hello World!")).is_borrowed());
-    // assert!(T::from(PathBuf::from("Hello World!").into_boxed_path()).is_owned());
+    assert!(T::from(PathBuf::from("Hello World!").into_boxed_path()).is_owned());
 }
 
 #[test]

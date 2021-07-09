@@ -13,35 +13,53 @@ where
     }
 }
 
-macro_rules! impl_basic {
-    ($(
-        $(#[$attrs:meta])*
-        { $Ty:ty => $As:ty }
-    )+) => {
-        $(
-            $(#[$attrs])*
-            impl<'a> AsRef<$As> for Cow<'a, $Ty> {
-                #[inline]
-                fn as_ref(&self) -> &$As {
-                    self.make_ref().as_ref()
-                }
-            }
-        )+
-    };
+////////////////////////////////////////////////////////////////////////////////
+// Cow<str>
+////////////////////////////////////////////////////////////////////////////////
+
+impl AsRef<[u8]> for Cow<'_, str> {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        self.make_ref().as_ref()
+    }
 }
 
-impl_basic! {
-    { str => [u8] }
+#[cfg(feature = "std")]
+impl AsRef<OsStr> for Cow<'_, str> {
+    #[inline]
+    fn as_ref(&self) -> &OsStr {
+        self.make_ref().as_ref()
+    }
+}
 
-    #[cfg(feature = "std")]
-    { str => OsStr }
+#[cfg(feature = "std")]
+impl AsRef<Path> for Cow<'_, str> {
+    #[inline]
+    fn as_ref(&self) -> &Path {
+        self.make_ref().as_ref()
+    }
+}
 
-    #[cfg(feature = "std")]
-    { str => Path }
+////////////////////////////////////////////////////////////////////////////////
+// Cow<OsStr>
+////////////////////////////////////////////////////////////////////////////////
 
-    #[cfg(feature = "std")]
-    { OsStr => Path }
+#[cfg(feature = "std")]
+impl AsRef<Path> for Cow<'_, OsStr> {
+    #[inline]
+    fn as_ref(&self) -> &Path {
+        self.make_ref().as_ref()
+    }
+}
 
-    #[cfg(feature = "std")]
-    { Path => OsStr }
+////////////////////////////////////////////////////////////////////////////////
+// Cow<Path>
+////////////////////////////////////////////////////////////////////////////////
+
+#[cfg(feature = "std")]
+impl AsRef<OsStr> for Cow<'_, Path> {
+    #[inline]
+    fn as_ref(&self) -> &OsStr {
+        self.make_ref().as_ref()
+    }
 }
