@@ -50,7 +50,9 @@ extern crate std;
 
 mod as_ref;
 mod cmp;
+mod extend;
 mod from;
+mod from_iter;
 mod imp;
 mod serde;
 mod to_boxed;

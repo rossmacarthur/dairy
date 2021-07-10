@@ -1,5 +1,8 @@
+#![allow(clippy::from_iter_instead_of_collect)]
+
 use std::borrow::Borrow;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 
 use dairy::Cow;
@@ -147,4 +150,61 @@ fn cow_path_borrowed_partial_eq() {
     assert_eq!(c, OsString::from("/hello/world"));
     assert_eq!(c, &OsString::from("/hello/world"));
     // assert_eq!(c, Box::new(OsStr::new("/hello/world")));
+}
+
+#[test]
+fn cow_path_extend() {
+    let borrowed: Vec<&Path> = vec![
+        Path::new("hel"),
+        Path::new("lo"),
+        Path::new("wor"),
+        Path::new("ld"),
+    ];
+    let owned: Vec<PathBuf> = borrowed.iter().copied().map(PathBuf::from).collect();
+
+    let mut c = T::default();
+    c.extend(borrowed.iter().copied());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let mut c = T::default();
+    c.extend(owned.iter());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().map(T::from));
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned().map(PathBuf::into_boxed_path));
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+}
+
+#[test]
+fn cow_path_from_iter() {
+    let borrowed: Vec<&Path> = vec![
+        Path::new("hel"),
+        Path::new("lo"),
+        Path::new("wor"),
+        Path::new("ld"),
+    ];
+    let owned: Vec<PathBuf> = borrowed.iter().copied().map(PathBuf::from).collect();
+
+    let c = T::from_iter(borrowed.iter().copied());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let c = T::from_iter(owned.iter().cloned());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let c = T::from_iter(owned.iter());
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let c = T::from_iter(owned.iter().map(T::from));
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
+
+    let c = T::from_iter(owned.iter().cloned().map(PathBuf::into_boxed_path));
+    assert_eq!(c, Path::new("hel/lo/wor/ld"));
 }

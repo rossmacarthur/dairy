@@ -1,5 +1,8 @@
+#![allow(clippy::from_iter_instead_of_collect)]
+
 use std::borrow::Borrow;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
 use std::path::Path;
 
 use dairy::Cow;
@@ -145,4 +148,67 @@ fn cow_str_borrowed_partial_eq() {
     // assert_eq!(c, Path::new("Hello World!"));
     // assert_eq!(c, PathBuf::from("Hello World!"));
     // assert_eq!(c, &PathBuf::from("Hello World!"));
+}
+
+#[test]
+fn cow_str_extend() {
+    let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+    let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
+    let chars: Vec<char> = "Hello World!".chars().collect();
+
+    let mut c = T::default();
+    c.extend(borrowed.iter().copied());
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned());
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(owned.iter());
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(owned.iter().map(T::from));
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned().map(String::into_boxed_str));
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(chars.iter());
+    assert_eq!(c, "Hello World!");
+
+    let mut c = T::default();
+    c.extend(chars.into_iter());
+    assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_from_iter() {
+    let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+    let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
+    let chars: Vec<char> = "Hello World!".chars().collect();
+
+    let c = T::from_iter(borrowed.iter().copied());
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(owned.iter().cloned());
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(owned.iter());
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(owned.iter().map(T::from));
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(owned.iter().cloned().map(String::into_boxed_str));
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(chars.iter());
+    assert_eq!(c, "Hello World!");
+
+    let c = T::from_iter(chars.into_iter());
+    assert_eq!(c, "Hello World!");
 }

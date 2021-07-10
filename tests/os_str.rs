@@ -1,5 +1,8 @@
+#![allow(clippy::from_iter_instead_of_collect)]
+
 use std::borrow::Borrow;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 
 use dairy::Cow;
@@ -148,4 +151,61 @@ fn cow_os_str_borrowed_partial_eq() {
     assert_eq!(c, PathBuf::from("Hello World!"));
     assert_eq!(c, &PathBuf::from("Hello World!"));
     // assert_eq!(c, Box::new(Path::new("Hello World!")));
+}
+
+#[test]
+fn cow_os_str_extend() {
+    let borrowed: Vec<&OsStr> = vec![
+        OsStr::new("Hel"),
+        OsStr::new("lo "),
+        OsStr::new("Wor"),
+        OsStr::new("ld!"),
+    ];
+    let owned: Vec<OsString> = borrowed.iter().copied().map(OsString::from).collect();
+
+    let mut c = T::default();
+    c.extend(borrowed.iter().copied());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let mut c = T::default();
+    c.extend(owned.iter());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().map(T::from));
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let mut c = T::default();
+    c.extend(owned.iter().cloned().map(OsString::into_boxed_os_str));
+    assert_eq!(c, OsStr::new("Hello World!"));
+}
+
+#[test]
+fn cow_os_str_from_iter() {
+    let borrowed: Vec<&OsStr> = vec![
+        OsStr::new("Hel"),
+        OsStr::new("lo "),
+        OsStr::new("Wor"),
+        OsStr::new("ld!"),
+    ];
+    let owned: Vec<OsString> = borrowed.iter().copied().map(OsString::from).collect();
+
+    let c = T::from_iter(borrowed.iter().copied());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let c = T::from_iter(owned.iter().cloned());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let c = T::from_iter(owned.iter());
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let c = T::from_iter(owned.iter().map(T::from));
+    assert_eq!(c, OsStr::new("Hello World!"));
+
+    let c = T::from_iter(owned.iter().cloned().map(OsString::into_boxed_os_str));
+    assert_eq!(c, OsStr::new("Hello World!"));
 }

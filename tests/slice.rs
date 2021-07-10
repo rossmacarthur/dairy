@@ -1,5 +1,8 @@
+#![allow(clippy::from_iter_instead_of_collect)]
+
 use std::borrow::Borrow;
 use std::ffi::OsStr;
+use std::iter::FromIterator;
 
 use dairy::Cow;
 
@@ -120,4 +123,24 @@ fn cow_slice_borrowed_partial_eq() {
     assert_eq!(c, &[OsStr::new("Hello"), OsStr::new("World!")]);
     assert_eq!(c, vec![OsStr::new("Hello"), OsStr::new("World!")]);
     assert_eq!(c, &vec![OsStr::new("Hello"), OsStr::new("World!")]);
+}
+
+#[test]
+fn cow_slice_extend() {
+    let mut c = T::default();
+    c.extend(vec!["Hello", "World!"]);
+    assert_eq!(c, &["Hello", "World!"]);
+
+    let mut c = T::default();
+    c.extend(&["Hello", "World!"]);
+    assert_eq!(c, &["Hello", "World!"]);
+}
+
+#[test]
+fn cow_slice_from_iter() {
+    let c = T::from_iter(vec!["Hello", "World!"]);
+    assert_eq!(c, &["Hello", "World!"]);
+
+    let c = T::from_iter(&["Hello", "World!"]);
+    assert_eq!(c, &["Hello", "World!"]);
 }
