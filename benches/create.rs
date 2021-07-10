@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use criterion::{black_box, criterion_group, Criterion};
 
 use beef::lean::Cow as BeefCow;
@@ -15,24 +17,24 @@ Fusce ullamcorper feugiat nunc, sit amet aliquet nisi rhoncus eu. Aliquam ut ips
 
 Etiam viverra posuere dui eu ultrices. Praesent nec est ut arcu sagittis vestibulum eu ut ante. Nullam dolor augue, consequat at nunc at, hendrerit blandit felis. Phasellus nulla metus, feugiat nec aliquam non, rhoncus id eros. Pellentesque et justo nec augue sodales rhoncus. Nulla dictum mollis feugiat. Pellentesque placerat viverra pulvinar. Sed pharetra, lorem id tincidunt laoreet, erat dui eleifend sem, nec pulvinar magna velit quis leo.";
 
-fn create(c: &mut Criterion) {
+fn create_str(c: &mut Criterion) {
     let words: Vec<_> = TEXT.split_whitespace().collect();
 
-    c.bench_function("create/beef", |b| {
+    c.bench_function("create/str/beef", |b| {
         b.iter(|| {
             let cows: Vec<BeefCow<str>> = words.iter().copied().map(BeefCow::borrowed).collect();
             black_box(cows);
         })
     });
 
-    c.bench_function("create/dairy", |b| {
+    c.bench_function("create/str/dairy", |b| {
         b.iter(|| {
             let cows: Vec<DairyCow<str>> = words.iter().copied().map(DairyCow::borrowed).collect();
             black_box(cows);
         })
     });
 
-    c.bench_function("create/std", |b| {
+    c.bench_function("create/str/std", |b| {
         b.iter(|| {
             let cows: Vec<StdCow<str>> = words.iter().copied().map(StdCow::Borrowed).collect();
             black_box(cows);
@@ -40,10 +42,10 @@ fn create(c: &mut Criterion) {
     });
 }
 
-fn create_mixed(c: &mut Criterion) {
+fn create_str_mixed(c: &mut Criterion) {
     let words: Vec<_> = TEXT.split_whitespace().collect();
 
-    c.bench_function("create_mixed/beef", |b| {
+    c.bench_function("create_mixed/str/beef", |b| {
         b.iter(|| {
             let cows: Vec<BeefCow<str>> = words
                 .iter()
@@ -61,7 +63,7 @@ fn create_mixed(c: &mut Criterion) {
         })
     });
 
-    c.bench_function("create_mixed/dairy", |b| {
+    c.bench_function("create_mixed/str/dairy", |b| {
         b.iter(|| {
             let cows: Vec<DairyCow<str>> = words
                 .iter()
@@ -79,16 +81,17 @@ fn create_mixed(c: &mut Criterion) {
         })
     });
 
-    c.bench_function("create_mixed/std", |b| {
+    c.bench_function("create_mixed/str/td", |b| {
         b.iter(|| {
             let cows: Vec<StdCow<str>> = words
                 .iter()
+                .copied()
                 .enumerate()
                 .map(|(i, word)| {
                     if i % NTH_WORD == 0 {
-                        StdCow::Owned((*word).to_owned())
+                        StdCow::Owned(word.to_owned())
                     } else {
-                        StdCow::Borrowed(*word)
+                        StdCow::Borrowed(word)
                     }
                 })
                 .collect();
@@ -97,4 +100,72 @@ fn create_mixed(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, create, create_mixed);
+fn create_path(c: &mut Criterion) {
+    let words: Vec<_> = TEXT.split_whitespace().collect();
+
+    c.bench_function("create/path/dairy", |b| {
+        b.iter(|| {
+            let cows: Vec<DairyCow<Path>> = words.iter().copied().map(DairyCow::from).collect();
+            black_box(cows);
+        })
+    });
+
+    c.bench_function("create/path/std", |b| {
+        b.iter(|| {
+            let cows: Vec<StdCow<Path>> = words
+                .iter()
+                .copied()
+                .map(|s| StdCow::Borrowed(Path::new(s)))
+                .collect();
+            black_box(cows);
+        })
+    });
+}
+
+fn create_path_mixed(c: &mut Criterion) {
+    let words: Vec<_> = TEXT.split_whitespace().collect();
+
+    c.bench_function("create_mixed/path/dairy", |b| {
+        b.iter(|| {
+            let cows: Vec<DairyCow<Path>> = words
+                .iter()
+                .copied()
+                .enumerate()
+                .map(|(i, word)| {
+                    if i % NTH_WORD == 0 {
+                        DairyCow::owned(PathBuf::from(word.to_owned()))
+                    } else {
+                        DairyCow::borrowed(Path::new(word))
+                    }
+                })
+                .collect();
+            black_box(cows);
+        })
+    });
+
+    c.bench_function("create_mixed/path/std", |b| {
+        b.iter(|| {
+            let cows: Vec<StdCow<Path>> = words
+                .iter()
+                .copied()
+                .enumerate()
+                .map(|(i, word)| {
+                    if i % NTH_WORD == 0 {
+                        StdCow::Owned(PathBuf::from(word.to_owned()))
+                    } else {
+                        StdCow::Borrowed(Path::new(word))
+                    }
+                })
+                .collect();
+            black_box(cows);
+        })
+    });
+}
+
+criterion_group!(
+    benches,
+    create_str,
+    create_str_mixed,
+    create_path,
+    create_path_mixed
+);
