@@ -27,7 +27,7 @@ mod small {
 
         #[inline]
         pub unsafe fn owned<T>(ptr: *mut T, len: usize, cap: usize) -> (NonNull<T>, Self) {
-            assert!((cap & LOWER) == cap, "capacity out of bounds");
+            assert!(cap & LOWER == cap, "capacity out of bounds: {}", cap);
             let extra = (cap << SHIFT) | len;
             let ptr = unsafe { NonNull::new_unchecked(ptr) };
             (ptr, Self(extra))

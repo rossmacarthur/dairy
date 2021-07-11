@@ -34,7 +34,7 @@ impl<'a> Dairy<'a> for str {
     type Cow = compact::Cow<'a, Self>;
 }
 
-impl<'a, T: Clone + 'a> Dairy<'a> for [T] {
+impl<'a, T: 'a + Clone> Dairy<'a> for [T] {
     type Cow = compact::Cow<'a, Self>;
 }
 
