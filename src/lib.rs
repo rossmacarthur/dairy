@@ -53,6 +53,7 @@ mod cmp;
 mod extend;
 mod from;
 mod from_iter;
+mod from_str;
 mod imp;
 mod serde;
 mod to_boxed;

@@ -212,3 +212,9 @@ fn cow_str_from_iter() {
     let c = T::from_iter(chars.into_iter());
     assert_eq!(c, "Hello World!");
 }
+
+#[test]
+fn cow_str_from_str() {
+    let c: T = "Hello World!".parse().unwrap();
+    assert!(c.is_owned());
+}

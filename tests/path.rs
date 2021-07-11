@@ -208,3 +208,9 @@ fn cow_path_from_iter() {
     let c = T::from_iter(owned.iter().cloned().map(PathBuf::into_boxed_path));
     assert_eq!(c, Path::new("hel/lo/wor/ld"));
 }
+
+#[test]
+fn cow_path_from_str() {
+    let c: T = "Hello World!".parse().unwrap();
+    assert!(c.is_owned());
+}

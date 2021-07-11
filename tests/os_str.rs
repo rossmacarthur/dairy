@@ -209,3 +209,9 @@ fn cow_os_str_from_iter() {
     let c = T::from_iter(owned.iter().cloned().map(OsString::into_boxed_os_str));
     assert_eq!(c, OsStr::new("Hello World!"));
 }
+
+#[test]
+fn cow_os_str_from_str() {
+    let c: T = "Hello World!".parse().unwrap();
+    assert!(c.is_owned());
+}
