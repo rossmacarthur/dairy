@@ -114,6 +114,13 @@ where
     T: ?Sized + Dairy<'a>,
 {
     /// Construct from borrowed data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dairy::Cow;
+    /// let cow: Cow<str> = Cow::borrowed("moo");
+    /// ```
     #[inline]
     pub fn borrowed(b: &'a T) -> Self {
         Self {
@@ -122,6 +129,13 @@ where
     }
 
     /// Construct from owned data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dairy::Cow;
+    /// let cow: Cow<str> = Cow::owned(String::from("moo"));
+    /// ```
     #[inline]
     pub fn owned(o: T::Owned) -> Self {
         Self {
@@ -130,12 +144,36 @@ where
     }
 
     /// Returns true if the data is borrowed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow: Cow<str> = Cow::borrowed("moo");
+    /// assert!(cow.is_borrowed());
+    ///
+    /// let cow: Cow<str> = Cow::owned(String::from("...moo?"));
+    /// assert!(!cow.is_borrowed());
+    /// ```
     #[inline]
     pub fn is_borrowed(&self) -> bool {
         self.inner.is_borrowed()
     }
 
     /// Returns true if the data is owned.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow: Cow<str> = Cow::owned(String::from("moo"));
+    /// assert!(cow.is_owned());
+    ///
+    /// let cow: Cow<str> = Cow::borrowed("...moo?");
+    /// assert!(!cow.is_owned());
+    /// ```
     #[inline]
     pub fn is_owned(&self) -> bool {
         self.inner.is_owned()
@@ -149,6 +187,26 @@ where
     /// Converts into owned data.
     ///
     /// Clones the data if it is not already owned.
+    ///
+    /// # Examples
+    ///
+    /// Calling `.into_owned()` on a borrowed `Cow` clones the underlying data.
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow = Cow::borrowed("Moo!");
+    /// assert_eq!(cow.into_owned(), String::from("Moo!"));
+    /// ```
+    ///
+    /// Calling `.into_owned()` on an owned `Cow` is a noop.
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow: Cow<str> = Cow::owned(String::from("Moo!"));
+    /// assert_eq!(cow.into_owned(), String::from("Moo!"));
+    /// ```
     #[inline]
     pub fn into_owned(self) -> T::Owned {
         self.inner.into_owned()
@@ -157,6 +215,26 @@ where
     /// Converts into boxed data.
     ///
     /// Clones the data if it is not already owned.
+    ///
+    /// # Examples
+    ///
+    /// Calling `.into_boxed()` on a borrowed `Cow` clones the underlying data.
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow = Cow::borrowed("Moo!");
+    /// assert_eq!(cow.into_boxed(), String::from("Moo!").into_boxed_str());
+    /// ```
+    ///
+    /// Calling `.into_boxed()` on an owned `Cow` is a noop.
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let cow: Cow<str> = Cow::owned(String::from("Moo!"));
+    /// assert_eq!(cow.into_boxed(), String::from("Moo!").into_boxed_str());
+    /// ```
     #[inline]
     pub fn into_boxed(self) -> Box<T>
     where
@@ -167,7 +245,22 @@ where
 
     /// Applies the given function to the owned data.
     ///
-    /// Clones the data if it is not already owned.
+    /// Clones the data if it is not already owned. This is useful because the
+    /// compact implementation is not able to provide a `.to_mut()` method like
+    /// the standard library. This function allows you to modify the `Cow`
+    /// without [moving] it.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use dairy::Cow;
+    ///
+    /// let mut cow = Cow::borrowed("Moo!");
+    /// cow.apply(|s| s.make_ascii_uppercase());
+    /// assert_eq!(cow, "MOO!");
+    /// ```
+    ///
+    /// [moving]: https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html?#ways-variables-and-data-interact-move
     #[inline]
     pub fn apply<F>(&mut self, f: F)
     where

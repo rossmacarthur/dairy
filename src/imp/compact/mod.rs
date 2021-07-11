@@ -12,7 +12,7 @@ use crate::imp::Cow as _;
 
 use self::convert::{Convert, IsOwned};
 
-/// A compact copy-on-write pointer.
+/// A compact clone-on-write smart pointer.
 pub struct Cow<'a, T>
 where
     T: ?Sized + Convert,
