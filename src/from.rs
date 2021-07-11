@@ -1,3 +1,4 @@
+use alloc::borrow::Cow as StdCow;
 use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
@@ -8,7 +9,20 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::Cow;
+use crate::{Cow, Dairy};
+
+impl<'a, T> From<StdCow<'a, T>> for Cow<'a, T>
+where
+    T: Dairy<'a>,
+{
+    #[inline]
+    fn from(c: StdCow<'a, T>) -> Self {
+        match c {
+            StdCow::Borrowed(b) => Self::borrowed(b),
+            StdCow::Owned(o) => Self::owned(o),
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cow<str>
@@ -30,29 +44,29 @@ impl From<Cow<'_, str>> for Box<str> {
 
 impl<'a> From<&'a str> for Cow<'a, str> {
     #[inline]
-    fn from(t: &'a str) -> Self {
-        Self::borrowed(t)
+    fn from(s: &'a str) -> Self {
+        Self::borrowed(s)
     }
 }
 
 impl From<String> for Cow<'_, str> {
     #[inline]
-    fn from(t: String) -> Self {
-        Self::owned(t)
+    fn from(s: String) -> Self {
+        Self::owned(s)
     }
 }
 
 impl<'a> From<&'a String> for Cow<'a, str> {
     #[inline]
-    fn from(t: &'a String) -> Self {
-        Cow::borrowed(t.as_str())
+    fn from(s: &'a String) -> Self {
+        Cow::borrowed(s.as_str())
     }
 }
 
 impl From<Box<str>> for Cow<'_, str> {
     #[inline]
-    fn from(t: Box<str>) -> Self {
-        Cow::owned(t.into_string())
+    fn from(s: Box<str>) -> Self {
+        Cow::owned(s.into_string())
     }
 }
 
