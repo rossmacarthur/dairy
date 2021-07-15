@@ -30,6 +30,22 @@ jobs:
     - name: Clippy
       run: cargo clippy --workspace --all-targets
 
+  miri:
+    name: test (miri, ubuntu-latest)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        components: miri
+        override: true
+
+    - name: Test
+      run: cargo miri test --workspace --all-features
+
   test:
     name: test (${{ matrix.toolchain }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
