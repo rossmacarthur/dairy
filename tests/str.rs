@@ -150,35 +150,67 @@ fn cow_str_borrowed_partial_eq() {
     // assert_eq!(c, &PathBuf::from("Hello World!"));
 }
 
+// #[test]
+// fn cow_str_extend_a() {
+//     let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+
+//     let mut c = T::default();
+//     c.extend(borrowed.iter().copied());
+//     assert_eq!(c, "Hello World!");
+// }
+
 #[test]
-fn cow_str_extend() {
+fn cow_str_extend_b() {
     let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
     let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
-    let chars: Vec<char> = "Hello World!".chars().collect();
-
-    let mut c = T::default();
-    c.extend(borrowed.iter().copied());
-    assert_eq!(c, "Hello World!");
 
     let mut c = T::default();
     c.extend(owned.iter().cloned());
     assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_extend_c() {
+    let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+    let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
 
     let mut c = T::default();
     c.extend(owned.iter());
     assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_extend_d() {
+    let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+    let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
 
     let mut c = T::default();
     c.extend(owned.iter().map(T::from));
     assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_extend_e() {
+    let borrowed: Vec<&str> = vec!["Hel", "lo ", "Wor", "ld!"];
+    let owned: Vec<String> = borrowed.iter().copied().map(String::from).collect();
 
     let mut c = T::default();
     c.extend(owned.iter().cloned().map(String::into_boxed_str));
     assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_extend_f() {
+    let chars: Vec<char> = "Hello World!".chars().collect();
 
     let mut c = T::default();
     c.extend(chars.iter());
     assert_eq!(c, "Hello World!");
+}
+
+#[test]
+fn cow_str_extend_g() {
+    let chars: Vec<char> = "Hello World!".chars().collect();
 
     let mut c = T::default();
     c.extend(chars.into_iter());
