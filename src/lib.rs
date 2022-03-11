@@ -42,6 +42,7 @@
 
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
+#![feature(generic_associated_types)]
 
 extern crate alloc;
 
@@ -104,14 +105,15 @@ pub type PathBuf<'a> = Cow<'a, Path>;
 /// methods directly on the data it encloses.
 pub struct Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
+    <T as Dairy>::Cow<'a>: imp::Cow<'a, T>,
 {
-    inner: T::Cow,
+    inner: T::Cow<'a>,
 }
 
 impl<'a, T> Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
 {
     /// Construct from borrowed data.
     ///
@@ -124,7 +126,7 @@ where
     #[inline]
     pub fn borrowed(b: &'a T) -> Self {
         Self {
-            inner: T::Cow::borrowed(b),
+            inner: T::Cow::<'a>::borrowed(b),
         }
     }
 
@@ -139,7 +141,7 @@ where
     #[inline]
     pub fn owned(o: T::Owned) -> Self {
         Self {
-            inner: T::Cow::owned(o),
+            inner: T::Cow::<'a>::owned(o),
         }
     }
 
@@ -272,7 +274,7 @@ where
 
 impl<'a, T> Deref for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
 {
     type Target = T;
 
@@ -284,7 +286,7 @@ where
 
 impl<'a, T> Borrow<T> for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
 {
     #[inline]
     fn borrow(&self) -> &T {
@@ -294,7 +296,7 @@ where
 
 impl<'a, T> Clone for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -306,7 +308,7 @@ where
 
 impl<'a, T> fmt::Debug for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + fmt::Debug,
+    T: ?Sized + Dairy + fmt::Debug,
     T::Owned: fmt::Debug,
 {
     #[inline]
@@ -317,7 +319,7 @@ where
 
 impl<'a, T> fmt::Display for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + fmt::Display,
+    T: ?Sized + Dairy + fmt::Display,
     T::Owned: fmt::Display,
 {
     #[inline]
@@ -328,7 +330,7 @@ where
 
 impl<'a, T> Default for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
     T::Owned: Default,
 {
     #[inline]
@@ -339,7 +341,7 @@ where
 
 impl<'a, T> Hash for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + Hash,
+    T: ?Sized + Dairy + Hash,
 {
     #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -349,21 +351,21 @@ where
 
 unsafe impl<'a, T> Send for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + Sync,
+    T: ?Sized + Dairy + Sync,
     T::Owned: Send,
 {
 }
 
 unsafe impl<'a, T> Sync for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + Sync,
+    T: ?Sized + Dairy + Sync,
     T::Owned: Sync,
 {
 }
 
 impl<'a, T> Unpin for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
     T::Owned: Unpin,
 {
 }

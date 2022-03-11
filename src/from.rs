@@ -13,7 +13,7 @@ use crate::{Cow, Dairy};
 
 impl<'a, T> From<StdCow<'a, T>> for Cow<'a, T>
 where
-    T: Dairy<'a>,
+    T: Dairy,
 {
     #[inline]
     fn from(c: StdCow<'a, T>) -> Self {

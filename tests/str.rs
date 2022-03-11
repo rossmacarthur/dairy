@@ -5,6 +5,8 @@ use std::ffi::{OsStr, OsString};
 use std::iter::FromIterator;
 use std::path::Path;
 
+use serde_derive::{Deserialize, Serialize};
+
 use dairy::Cow;
 
 type T<'a> = Cow<'a, str>;
@@ -217,4 +219,38 @@ fn cow_str_from_iter() {
 fn cow_str_from_str() {
     let c: T = "Hello World!".parse().unwrap();
     assert!(c.is_owned());
+}
+
+#[test]
+fn cow_str_serde() {
+    let c: Cow<str> = serde_json::from_str(r#""Hello World!""#).unwrap();
+    assert_eq!(c, "Hello World!");
+    assert!(c.is_borrowed());
+
+    let c: Cow<str> = serde_json::from_str(r#""Hello\nWorld!""#).unwrap();
+    assert_eq!(c, "Hello\nWorld!");
+    assert!(c.is_owned());
+}
+
+#[test]
+fn cow_str_serde_derive() {
+    #[derive(Deserialize)]
+    struct Test<'a> {
+        #[serde(borrow)]
+        borrowed: Cow<'a, str>,
+        owned: Cow<'a, str>,
+    }
+
+    let t: Test = serde_json::from_str(
+        r#"{
+            "borrowed: "Hello World!",
+            "owned":"Hello World!"
+        }"#,
+    )
+    .unwrap();
+
+    // assert_eq!(t.borrowed, "Hello World!");
+    // assert_eq!(t.owned, "Hello World!");
+    // assert!(t.borrowed.is_borrowed());
+    // assert!(t.owned.is_owned());
 }

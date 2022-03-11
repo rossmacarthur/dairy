@@ -13,8 +13,8 @@ use crate::{Cow, Dairy};
 
 impl<'a, 'b, T, U> PartialEq<Cow<'b, U>> for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + PartialEq<U>,
-    U: ?Sized + Dairy<'b>,
+    T: ?Sized + Dairy + PartialEq<U>,
+    U: ?Sized + Dairy,
 {
     #[inline]
     fn eq(&self, other: &Cow<'b, U>) -> bool {
@@ -22,11 +22,11 @@ where
     }
 }
 
-impl<'a, T> Eq for Cow<'a, T> where T: ?Sized + Dairy<'a> + Eq {}
+impl<'a, T> Eq for Cow<'a, T> where T: ?Sized + Dairy + Eq {}
 
 impl<'a, T> PartialOrd for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + PartialOrd,
+    T: ?Sized + Dairy + PartialOrd,
 {
     #[inline]
     fn partial_cmp(&self, other: &Cow<'a, T>) -> Option<Ordering> {
@@ -36,7 +36,7 @@ where
 
 impl<'a, T> Ord for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a> + Ord,
+    T: ?Sized + Dairy + Ord,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {

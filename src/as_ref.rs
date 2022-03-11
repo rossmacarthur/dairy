@@ -5,7 +5,7 @@ use crate::{Cow, Dairy};
 
 impl<'a, T> AsRef<T> for Cow<'a, T>
 where
-    T: ?Sized + Dairy<'a>,
+    T: ?Sized + Dairy,
 {
     #[inline]
     fn as_ref(&self) -> &T {

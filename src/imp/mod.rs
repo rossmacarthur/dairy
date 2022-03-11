@@ -26,39 +26,42 @@ where
 /// implementations for the same type across different platforms.
 ///
 /// This is a *sealed* trait so only this crate can implement it.
-pub trait Dairy<'a>: ToOwned + sealed::Sealed {
-    type Cow: Cow<'a, Self>;
+pub trait Dairy: ToOwned + sealed::Sealed {
+    type Cow<'a>: Cow<'a, Self>;
 }
 
-impl<'a> Dairy<'a> for str {
-    type Cow = compact::Cow<'a, Self>;
+impl Dairy for str {
+    type Cow<'a> = compact::Cow<'a, Self>;
 }
 
-impl<'a, T: 'a + Clone> Dairy<'a> for [T] {
-    type Cow = compact::Cow<'a, Self>;
+impl<'t, T: 't + Clone> Dairy for [T]
+where
+    't: 'a,
+{
+    type Cow<'a> = compact::Cow<'t, Self>;
 }
 
 #[cfg(feature = "std")]
-impl<'a> Dairy<'a> for std::ffi::CStr {
-    type Cow = compact::Cow<'a, Self>;
+impl Dairy for std::ffi::CStr {
+    type Cow<'a> = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", os_str_ext))]
-impl<'a> Dairy<'a> for std::ffi::OsStr {
-    type Cow = compact::Cow<'a, Self>;
+impl Dairy for std::ffi::OsStr {
+    type Cow<'a> = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", not(os_str_ext)))]
-impl<'a> Dairy<'a> for std::ffi::OsStr {
-    type Cow = default::Cow<'a, Self>;
+impl Dairy for std::ffi::OsStr {
+    type Cow<'a> = default::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", os_str_ext))]
-impl<'a> Dairy<'a> for std::path::Path {
-    type Cow = compact::Cow<'a, Self>;
+impl Dairy for std::path::Path {
+    type Cow<'a> = compact::Cow<'a, Self>;
 }
 
 #[cfg(all(feature = "std", not(os_str_ext)))]
-impl<'a> Dairy<'a> for std::path::Path {
+impl<'a> Dairy for std::path::Path {
     type Cow = default::Cow<'a, Self>;
 }

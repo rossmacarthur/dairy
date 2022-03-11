@@ -1,6 +1,8 @@
 use std::borrow::Borrow;
 use std::ffi::{CStr, CString};
 
+use serde_derive::{Deserialize, Serialize};
+
 use dairy::Cow;
 
 type T<'a> = Cow<'a, CStr>;
@@ -123,4 +125,27 @@ fn cow_c_str_borrowed_partial_eq() {
     assert_eq!(c, c_string());
     assert_eq!(c, &c_string());
     // assert_eq!(c, Box::new(c_str()));
+}
+
+#[test]
+fn cow_c_str_serde() {
+    #[derive(Serialize, Deserialize)]
+    struct Test<'a> {
+        #[serde(borrow)]
+        borrowed: Cow<'a, CStr>,
+        owned: Cow<'a, CStr>,
+    }
+
+    let t: Test = serde_json::from_str(
+        r#"{
+            "borrowed: "Hello World!",
+            "owned":"Hello World!"
+        }"#,
+    )
+    .unwrap();
+
+    assert_eq!(t.borrowed, c_str());
+    assert!(t.borrowed.is_borrowed());
+    assert_eq!(t.owned, c_str());
+    assert!(t.owned.is_owned());
 }
